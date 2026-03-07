@@ -44,7 +44,12 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
     setSubmitting(true);
     setTimeout(() => {
       setSubmitting(false);
-      toast.success("Order successfully place ho gaya! Hum aap se jald rabta karenge.");
+      
+      // WhatsApp message
+      const msg = `🛒 *New ZapCart Order*%0A%0A📦 Product: ${product.name}%0A💰 Price: Rs. ${product.price.toLocaleString()}%0A%0A👤 Name: ${result.data.name}%0A📱 Mobile: ${result.data.mobile}%0A🏙️ City: ${result.data.city}%0A📍 Address: ${result.data.address}`;
+      window.open(`https://wa.me/923701930960?text=${msg}`, "_blank");
+      
+      toast.success("Order successfully place ho gaya! WhatsApp pe confirm karein.");
       onClose();
       setForm({ name: "", mobile: "", address: "", city: "" });
     }, 1500);
