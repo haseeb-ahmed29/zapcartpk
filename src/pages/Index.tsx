@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Zap, Truck, ShieldCheck, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Zap, Truck, ShieldCheck, Phone, Cpu } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import OrderForm from "@/components/OrderForm";
 
@@ -78,7 +79,15 @@ const Index = () => {
             <Zap className="w-7 h-7 text-primary" />
             <span className="font-display font-bold text-xl text-foreground">ZapCart</span>
           </div>
-          <span className="text-sm text-muted-foreground hidden sm:block">🇵🇰 Pakistan's Computer Accessories Store</span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground hidden sm:block">🇵🇰 Pakistan's Computer Accessories Store</span>
+            <Link
+              to="/iot-demo"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 text-white hover:opacity-90 transition"
+            >
+              <Cpu className="w-3.5 h-3.5" /> IoT Demo
+            </Link>
+          </div>
         </div>
       </nav>
 

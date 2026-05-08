@@ -101,3 +101,50 @@
     font-family: 'Inter', sans-serif;
   }
 }
+
+/* ===== IoT Demo theme (scoped via .iot-theme) ===== */
+.iot-theme {
+  --iot-bg-1: 222 47% 6%;
+  --iot-bg-2: 220 60% 10%;
+  --iot-safe: 145 90% 55%;
+  --iot-danger: 0 95% 60%;
+  --iot-warn: 35 100% 60%;
+  --iot-accent: 190 95% 60%;
+  --iot-violet: 270 90% 70%;
+  --iot-text: 210 40% 96%;
+  --iot-muted: 215 25% 70%;
+
+  background:
+    radial-gradient(1000px 600px at 10% -10%, hsla(var(--iot-accent) / 0.15), transparent 60%),
+    radial-gradient(800px 500px at 110% 10%, hsla(var(--iot-violet) / 0.18), transparent 60%),
+    linear-gradient(180deg, hsl(var(--iot-bg-1)), hsl(var(--iot-bg-2)));
+  color: hsl(var(--iot-text));
+  min-height: 100vh;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.iot-theme .glass {
+  background: linear-gradient(135deg, hsla(0,0%,100%,0.06), hsla(0,0%,100%,0.02));
+  border: 1px solid hsla(var(--iot-accent) / 0.18);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 1rem;
+  box-shadow: 0 8px 40px -10px hsla(var(--iot-accent) / 0.2), inset 0 1px 0 hsla(0,0%,100%,0.05);
+}
+.iot-theme .neon-cyan { color: hsl(var(--iot-accent)); text-shadow: 0 0 12px hsla(var(--iot-accent) / 0.6); }
+.iot-theme .neon-safe { color: hsl(var(--iot-safe)); text-shadow: 0 0 12px hsla(var(--iot-safe) / 0.7); }
+.iot-theme .neon-danger { color: hsl(var(--iot-danger)); text-shadow: 0 0 12px hsla(var(--iot-danger) / 0.8); }
+.iot-theme .ring-safe { box-shadow: 0 0 0 1px hsla(var(--iot-safe) / 0.5), 0 0 30px hsla(var(--iot-safe) / 0.35); }
+.iot-theme .ring-danger { box-shadow: 0 0 0 1px hsla(var(--iot-danger) / 0.6), 0 0 40px hsla(var(--iot-danger) / 0.5); }
+.iot-theme .grid-bg {
+  background-image:
+    linear-gradient(hsla(var(--iot-accent) / 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, hsla(var(--iot-accent) / 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.iot-theme .danger-overlay {
+  position: fixed; inset: 0; pointer-events: none; z-index: 30;
+  background: radial-gradient(ellipse at center, transparent 40%, hsla(var(--iot-danger) / 0.25) 100%);
+  animation: pulse-glow 1s ease-in-out infinite;
+}
+
