@@ -31,9 +31,10 @@ const ProductCard = ({ name, price, oldPrice, description, image, onBuy }: Produ
           </div>
           <button
             onClick={onBuy}
-            className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 hover:opacity-90 transition-opacity"
+            aria-label={`Buy ${name}`}
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <ShoppingCart className="w-4 h-4" />
+            <ShoppingCart className="w-4 h-4" aria-hidden="true" />
             Buy Now
           </button>
         </div>
