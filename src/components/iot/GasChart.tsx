@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, ReferenceLine, Tooltip } from "recharts";
 import type { GasReading } from "@/hooks/useGasSimulation";
 
-export default function GasChart({ data, threshold }: { data: GasReading[]; threshold: number }) {
+function GasChart({ data, threshold }: { data: GasReading[]; threshold: number }) {
   const formatted = data.map((d, i) => ({ idx: i, value: d.value }));
   return (
     <div className="h-44 w-full">
@@ -34,3 +35,5 @@ export default function GasChart({ data, threshold }: { data: GasReading[]; thre
     </div>
   );
 }
+
+export default memo(GasChart);
