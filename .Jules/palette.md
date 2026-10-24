@@ -1,0 +1,3 @@
+## 2026-03-31 - Modal Order Form Accessibility and Async Loading UX
+**Learning:** Icon-only modal close buttons in custom dialogs and inputs without explicit label linkage/aria attributes are common screen reader blind spots. Adding `htmlFor`, `id`, `aria-required`, `aria-invalid`, `aria-describedby`, and an explicit `aria-label` along with an animated `Loader2` spinner during submit significantly improves screen-reader accessibility and visual feedback.
+**Action:** When building custom modal forms, ensure all icon buttons have ARIA labels, form inputs have explicit label `htmlFor` associations, error strings are linked via `aria-describedby`, and async actions display a clear loading spinner.
