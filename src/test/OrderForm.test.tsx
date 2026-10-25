@@ -23,11 +23,19 @@ describe("OrderForm Security Tests", () => {
     const handleClose = vi.fn();
     render(<OrderForm product={dummyProduct} onClose={handleClose} />);
 
-    // Fill form fields with special characters that could trigger URL injection
-    const nameInput = screen.getByPlaceholderText("Apna poora naam likhein");
-    const mobileInput = screen.getByPlaceholderText("03XXXXXXXXX");
-    const citySelect = screen.getByRole("combobox");
-    const addressInput = screen.getByPlaceholderText("Ghar ka number, gali, mohalla, area");
+    // Ensure form controls are accessible via label text and close button has aria-label
+    const closeBtn = screen.getByRole("button", { name: /Modal close karein/i });
+    expect(closeBtn).toBeInTheDocument();
+
+    const nameInput = screen.getByLabelText(/Naam \*/i);
+    const mobileInput = screen.getByLabelText(/Mobile Number \*/i);
+    const citySelect = screen.getByLabelText(/City \*/i);
+    const addressInput = screen.getByLabelText(/Mukammal Address \*/i);
+
+    expect(nameInput).toBeInTheDocument();
+    expect(mobileInput).toBeInTheDocument();
+    expect(citySelect).toBeInTheDocument();
+    expect(addressInput).toBeInTheDocument();
 
     fireEvent.change(nameInput, { target: { value: "John & Doe #Special" } });
     fireEvent.change(mobileInput, { target: { value: "03001234567" } });

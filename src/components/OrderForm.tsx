@@ -61,7 +61,11 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
       <div className="bg-card rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-border">
           <h2 className="font-display font-bold text-xl text-card-foreground">Order Place Karein</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            onClick={onClose}
+            aria-label="Modal close karein"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -76,54 +80,92 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-card-foreground mb-1">Naam *</label>
+            <label htmlFor="order-name" className="block text-sm font-medium text-card-foreground mb-1">
+              Naam *
+            </label>
             <input
+              id="order-name"
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Apna poora naam likhein"
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "name-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
             />
-            {errors.name && <p className="text-destructive text-xs mt-1">{errors.name}</p>}
+            {errors.name && (
+              <p id="name-error" className="text-destructive text-xs mt-1">
+                {errors.name}
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-card-foreground mb-1">Mobile Number *</label>
+            <label htmlFor="order-mobile" className="block text-sm font-medium text-card-foreground mb-1">
+              Mobile Number *
+            </label>
             <input
+              id="order-mobile"
               type="tel"
               value={form.mobile}
               onChange={(e) => setForm({ ...form, mobile: e.target.value })}
               placeholder="03XXXXXXXXX"
+              aria-invalid={!!errors.mobile}
+              aria-describedby={errors.mobile ? "mobile-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
             />
-            {errors.mobile && <p className="text-destructive text-xs mt-1">{errors.mobile}</p>}
+            {errors.mobile && (
+              <p id="mobile-error" className="text-destructive text-xs mt-1">
+                {errors.mobile}
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-card-foreground mb-1">City *</label>
+            <label htmlFor="order-city" className="block text-sm font-medium text-card-foreground mb-1">
+              City *
+            </label>
             <select
+              id="order-city"
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
+              aria-invalid={!!errors.city}
+              aria-describedby={errors.city ? "city-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
             >
               <option value="">City select karein</option>
               {pakistanCities.map((city) => (
-                <option key={city} value={city}>{city}</option>
+                <option key={city} value={city}>
+                  {city}
+                </option>
               ))}
             </select>
-            {errors.city && <p className="text-destructive text-xs mt-1">{errors.city}</p>}
+            {errors.city && (
+              <p id="city-error" className="text-destructive text-xs mt-1">
+                {errors.city}
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-card-foreground mb-1">Mukammal Address *</label>
+            <label htmlFor="order-address" className="block text-sm font-medium text-card-foreground mb-1">
+              Mukammal Address *
+            </label>
             <textarea
+              id="order-address"
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
               placeholder="Ghar ka number, gali, mohalla, area"
               rows={3}
+              aria-invalid={!!errors.address}
+              aria-describedby={errors.address ? "address-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition resize-none"
             />
-            {errors.address && <p className="text-destructive text-xs mt-1">{errors.address}</p>}
+            {errors.address && (
+              <p id="address-error" className="text-destructive text-xs mt-1">
+                {errors.address}
+              </p>
+            )}
           </div>
 
           <button
