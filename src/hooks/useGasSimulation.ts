@@ -36,6 +36,9 @@ export function useGasSimulation() {
   const phaseTickRef = useRef(0);
   const prevStatusRef = useRef<Status>("safe");
   const gasLevelRef = useRef(8);
+  const gasLevelRef = useRef(gasLevel);
+
+  // Keep gasLevelRef updated for synchronous access inside interval callback
   gasLevelRef.current = gasLevel;
 
   const status: Status = shutdown ? "shutdown" : gasLevel > HIGH_THRESHOLD ? "danger" : "safe";
@@ -67,6 +70,8 @@ export function useGasSimulation() {
       // We use gasLevelRef to read current gasLevel without adding it to useEffect dependencies.
       const currentGas = gasLevelRef.current;
       let nextGas = currentGas;
+      // Compute next gas level directly
+      let nextGas = gasLevelRef.current;
       switch (phase) {
         case "safe":
           // drift around 5-25%
@@ -75,6 +80,7 @@ export function useGasSimulation() {
         case "rising":
           // climb from current toward ~85
           nextGas = currentGas + (85 - currentGas) * 0.18 + (Math.random() * 4 - 2);
+          nextGas = gasLevelRef.current + (85 - gasLevelRef.current) * 0.18 + (Math.random() * 4 - 2);
           break;
         case "danger":
           // jitter 78-96
@@ -96,6 +102,20 @@ export function useGasSimulation() {
       const roundedValue = Math.round(clampedGas);
       setHistory((h) => {
         const nh = [...h, { t: nowMs, value: roundedValue }];
+          nextGas = gasLevelRef.current + (10 - gasLevelRef.current) * 0.18 + (Math.random() * 3 - 1.5);
+          break;
+      }
+      nextGas = Math.max(0, Math.min(100, nextGas));
+      const roundedGas = Math.round(nextGas);
+      const nowMs = Date.now();
+
+      // OPTIMIZATION: Update gasLevel, lastUpdate, and history atomically in a single batch.
+      // Previously, history was pushed with dummy value:0 and a separate useEffect updated value
+      // on gasLevel change, causing 2 full re-renders per 500ms simulation tick.
+      setGasLevel(nextGas);
+      setLastUpdate(nowMs);
+      setHistory((h) => {
+        const nh = [...h, { t: nowMs, value: roundedGas }];
         if (nh.length > HISTORY_LEN) nh.shift();
         return nh;
       });
