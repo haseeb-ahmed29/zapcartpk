@@ -35,6 +35,7 @@ export function useGasSimulation() {
 
   const phaseTickRef = useRef(0);
   const prevStatusRef = useRef<Status>("safe");
+  const gasLevelRef = useRef(8);
   const gasLevelRef = useRef(gasLevel);
 
   // Keep gasLevelRef updated for synchronous access inside interval callback
@@ -64,6 +65,11 @@ export function useGasSimulation() {
         setTimeout(() => setWifiConnected(true), 600);
       }
 
+      // Performance optimization: Calculate next gas level synchronously within the tick
+      // to update history in a single pass without re-creating the interval timer on every tick.
+      // We use gasLevelRef to read current gasLevel without adding it to useEffect dependencies.
+      const currentGas = gasLevelRef.current;
+      let nextGas = currentGas;
       // Compute next gas level directly
       let nextGas = gasLevelRef.current;
       switch (phase) {
@@ -73,6 +79,7 @@ export function useGasSimulation() {
           break;
         case "rising":
           // climb from current toward ~85
+          nextGas = currentGas + (85 - currentGas) * 0.18 + (Math.random() * 4 - 2);
           nextGas = gasLevelRef.current + (85 - gasLevelRef.current) * 0.18 + (Math.random() * 4 - 2);
           break;
         case "danger":
@@ -80,6 +87,21 @@ export function useGasSimulation() {
           nextGas = 80 + Math.random() * 16;
           break;
         case "recovery":
+          nextGas = currentGas + (10 - currentGas) * 0.18 + (Math.random() * 3 - 1.5);
+          break;
+      }
+      const clampedGas = Math.max(0, Math.min(100, nextGas));
+      gasLevelRef.current = clampedGas;
+      setGasLevel(clampedGas);
+
+      const nowMs = Date.now();
+      setLastUpdate(nowMs);
+
+      // Append new history point directly with rounded value in one single batch update,
+      // avoiding duplicate state updates and array copying in a separate useEffect.
+      const roundedValue = Math.round(clampedGas);
+      setHistory((h) => {
+        const nh = [...h, { t: nowMs, value: roundedValue }];
           nextGas = gasLevelRef.current + (10 - gasLevelRef.current) * 0.18 + (Math.random() * 3 - 1.5);
           break;
       }
