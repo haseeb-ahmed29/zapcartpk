@@ -1,6 +1,3 @@
 ## 2026-03-31 - React Interval State Update Batching
 **Learning:** Watching state variables (like `gasLevel`) in a secondary `useEffect` to sync derived state (like `history`) triggers double re-renders on every tick. Consolidating state calculation inside the timer callback using `useRef` for the latest value allows batching state updates in a single pass without re-creating the interval timer.
 **Action:** Always compute new state values synchronously in timer callbacks and update dependent states together in a single pass.
-## 2025-02-16 - Avoid redundant useEffect state syncs in timer loops
-**Learning:** Updating state in a timer callback (`setInterval`) with temporary values and relying on a secondary `useEffect([state])` to patch dependent state causes double re-renders on every tick (e.g. 4 renders/sec instead of 2 renders/sec for 500ms ticks).
-**Action:** Compute updated values directly in the timer callback and batch state updates atomically in a single render cycle using `useRef` to access current state.
