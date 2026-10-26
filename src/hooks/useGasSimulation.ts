@@ -35,6 +35,10 @@ export function useGasSimulation() {
 
   const phaseTickRef = useRef(0);
   const prevStatusRef = useRef<Status>("safe");
+  const gasLevelRef = useRef(gasLevel);
+
+  // Keep gasLevelRef updated for synchronous access inside interval callback
+  gasLevelRef.current = gasLevel;
 
   const status: Status = shutdown ? "shutdown" : gasLevel > HIGH_THRESHOLD ? "danger" : "safe";
   const buzzerOn = status === "danger";
@@ -60,31 +64,36 @@ export function useGasSimulation() {
         setTimeout(() => setWifiConnected(true), 600);
       }
 
-      setGasLevel((prev) => {
-        let next = prev;
-        switch (phase) {
-          case "safe":
-            // drift around 5-25%
-            next = 8 + Math.random() * 17 + Math.sin(phaseTickRef.current / 3) * 3;
-            break;
-          case "rising":
-            // climb from current toward ~85
-            next = prev + (85 - prev) * 0.18 + (Math.random() * 4 - 2);
-            break;
-          case "danger":
-            // jitter 78-96
-            next = 80 + Math.random() * 16;
-            break;
-          case "recovery":
-            next = prev + (10 - prev) * 0.18 + (Math.random() * 3 - 1.5);
-            break;
-        }
-        return Math.max(0, Math.min(100, next));
-      });
+      // Compute next gas level directly
+      let nextGas = gasLevelRef.current;
+      switch (phase) {
+        case "safe":
+          // drift around 5-25%
+          nextGas = 8 + Math.random() * 17 + Math.sin(phaseTickRef.current / 3) * 3;
+          break;
+        case "rising":
+          // climb from current toward ~85
+          nextGas = gasLevelRef.current + (85 - gasLevelRef.current) * 0.18 + (Math.random() * 4 - 2);
+          break;
+        case "danger":
+          // jitter 78-96
+          nextGas = 80 + Math.random() * 16;
+          break;
+        case "recovery":
+          nextGas = gasLevelRef.current + (10 - gasLevelRef.current) * 0.18 + (Math.random() * 3 - 1.5);
+          break;
+      }
+      nextGas = Math.max(0, Math.min(100, nextGas));
+      const roundedGas = Math.round(nextGas);
+      const nowMs = Date.now();
 
-      setLastUpdate(Date.now());
+      // OPTIMIZATION: Update gasLevel, lastUpdate, and history atomically in a single batch.
+      // Previously, history was pushed with dummy value:0 and a separate useEffect updated value
+      // on gasLevel change, causing 2 full re-renders per 500ms simulation tick.
+      setGasLevel(nextGas);
+      setLastUpdate(nowMs);
       setHistory((h) => {
-        const nh = [...h, { t: Date.now(), value: 0 }];
+        const nh = [...h, { t: nowMs, value: roundedGas }];
         if (nh.length > HISTORY_LEN) nh.shift();
         return nh;
       });
@@ -100,16 +109,6 @@ export function useGasSimulation() {
     }, TICK_MS);
     return () => clearInterval(id);
   }, [phase, paused, shutdown]);
-
-  // Sync latest gas value into history's last entry
-  useEffect(() => {
-    setHistory((h) => {
-      if (h.length === 0) return h;
-      const copy = [...h];
-      copy[copy.length - 1] = { t: copy[copy.length - 1].t, value: Math.round(gasLevel) };
-      return copy;
-    });
-  }, [gasLevel]);
 
   const triggerLeak = useCallback(() => {
     if (shutdown) return;
