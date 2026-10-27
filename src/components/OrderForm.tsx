@@ -14,7 +14,10 @@ const orderSchema = z.object({
   name: z.string().trim().min(2, "Naam kam az kam 2 characters ka hona chahiye").max(100),
   mobile: z.string().trim().regex(/^03\d{9}$/, "Valid Pakistani mobile number darj karein (03XXXXXXXXX)"),
   address: z.string().trim().min(10, "Mukammal address darj karein").max(300),
-  city: z.string().min(1, "City select karein"),
+  city: z
+    .string()
+    .min(1, "City select karein")
+    .refine((val) => pakistanCities.includes(val), "Mo'atabar city select karein"),
 });
 
 interface OrderFormProps {
@@ -48,7 +51,11 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
       // WhatsApp message - safely encode message parameters to prevent URL parameter injection
       const msg = `🛒 *New ZapCart Order*\n\n📦 Product: ${product.name}\n💰 Price: Rs. ${product.price.toLocaleString()}\n\n👤 Name: ${result.data.name}\n📱 Mobile: ${result.data.mobile}\n🏙️ City: ${result.data.city}\n📍 Address: ${result.data.address}`;
       const encodedMsg = encodeURIComponent(msg);
-      window.open(`https://wa.me/923701930960?text=${encodedMsg}`, "_blank", "noopener,noreferrer");
+      // Security: nullify opener to prevent reverse tabnabbing vulnerabilities
+      const win = window.open(`https://wa.me/923701930960?text=${encodedMsg}`, "_blank", "noopener,noreferrer");
+      if (win) {
+        win.opener = null;
+      }
       
       toast.success("Order successfully place ho gaya! WhatsApp pe confirm karein.");
       onClose();
