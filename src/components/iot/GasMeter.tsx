@@ -1,5 +1,3 @@
-import { memo } from "react";
-
 // Animated circular gas gauge with neon glow
 interface Props {
   value: number; // 0-100
@@ -7,7 +5,7 @@ interface Props {
   threshold: number;
 }
 
-function GasMeter({ value, status, threshold }: Props) {
+export default function GasMeter({ value, status, threshold }: Props) {
   const size = 240;
   const stroke = 14;
   const r = (size - stroke) / 2;
@@ -63,5 +61,3 @@ function GasMeter({ value, status, threshold }: Props) {
     </div>
   );
 }
-
-export default memo(GasMeter);

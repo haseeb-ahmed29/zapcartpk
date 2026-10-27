@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { ArrowDown, Wind, Cpu, AlertTriangle, Smartphone, Flame } from "lucide-react";
 
 const steps = [
@@ -9,7 +8,7 @@ const steps = [
   { icon: Smartphone, label: "Mobile Notification", sub: "Sent via Wi-Fi" },
 ];
 
-function FlowDiagram({ activeStep }: { activeStep: number }) {
+export default function FlowDiagram({ activeStep }: { activeStep: number }) {
   return (
     <div className="flex flex-col items-center gap-2">
       {steps.map((s, i) => (
@@ -35,5 +34,3 @@ function FlowDiagram({ activeStep }: { activeStep: number }) {
     </div>
   );
 }
-
-export default memo(FlowDiagram);
