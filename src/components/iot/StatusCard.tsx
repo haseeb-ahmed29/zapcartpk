@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { type LucideIcon } from "lucide-react";
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
   animate?: "pulse" | "shake" | "blink" | "none";
 }
 
-export default function StatusCard({ icon: Icon, label, value, active, danger, animate = "none" }: Props) {
+function StatusCard({ icon: Icon, label, value, active, danger, animate = "none" }: Props) {
   const animClass =
     animate === "pulse" && active ? "animate-pulse-glow" :
     animate === "shake" && active ? "animate-shake" :
@@ -28,3 +29,5 @@ export default function StatusCard({ icon: Icon, label, value, active, danger, a
     </div>
   );
 }
+
+export default memo(StatusCard);
