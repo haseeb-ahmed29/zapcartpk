@@ -1,9 +1,13 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, ReferenceLine, Tooltip } from "recharts";
 import type { GasReading } from "@/hooks/useGasSimulation";
 
 function GasChart({ data, threshold }: { data: GasReading[]; threshold: number }) {
-  const formatted = data.map((d, i) => ({ idx: i, value: d.value }));
+  // Memoize formatted data computation to prevent redundant array allocations on re-renders
+  const formatted = useMemo(
+    () => data.map((d, i) => ({ idx: i, value: d.value })),
+    [data]
+  );
   return (
     <div className="h-44 w-full">
       <ResponsiveContainer width="100%" height="100%">
