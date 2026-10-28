@@ -92,15 +92,14 @@ export function useGasSimulation() {
       }
       const bounded = Math.max(0, Math.min(100, next));
       updateGasLevel(bounded);
+      setLastUpdate(now);
 
+      const rounded = Math.round(bounded);
       setHistory((h) => {
-        const rounded = Math.round(bounded);
         const nh = [...h, { t: now, value: rounded }];
         if (nh.length > HISTORY_LEN) nh.shift();
         return nh;
       });
-
-      setLastUpdate(now);
 
       // Phase advance
       if (phaseTickRef.current >= PHASE_TICKS[phase]) {

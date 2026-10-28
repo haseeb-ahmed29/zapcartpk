@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useGasSimulation } from "@/hooks/useGasSimulation";
 
@@ -44,6 +44,11 @@ describe("useGasSimulation hook", () => {
 
   it("should handle emergency shutdown and reset", () => {
     const { result } = renderHook(() => useGasSimulation());
+
+    act(() => {
+      result.current.triggerLeak();
+    });
+    expect(result.current.phase).toBe("rising");
 
     act(() => {
       result.current.emergencyShutdown();
