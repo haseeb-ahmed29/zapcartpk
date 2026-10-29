@@ -18,8 +18,16 @@ function GasMeter({ value, status, threshold }: Props) {
     status === "danger" ? "var(--iot-danger)" : status === "shutdown" ? "var(--iot-muted)" : "var(--iot-safe)";
 
   return (
-    <div className="relative flex flex-col items-center justify-center">
-      <svg width={size} height={size} className="-rotate-90">
+    <div
+      role="meter"
+      aria-label="Live gas concentration"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuetext={`${value}% LEL`}
+      className="relative flex flex-col items-center justify-center"
+    >
+      <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
         <defs>
           <linearGradient id="gasGrad" x1="0" x2="1" y1="0" y2="1">
             <stop offset="0%" stopColor={`hsl(${colorVar})`} />

@@ -25,6 +25,7 @@ const HISTORY_LEN = 40;
 export function useGasSimulation() {
   const [gasLevel, setGasLevel] = useState(8);
   const [phase, setPhase] = useState<Phase>("safe");
+  const phaseRef = useRef<Phase>("safe");
   const [paused, setPaused] = useState(false);
   const [shutdown, setShutdown] = useState(false);
   const [history, setHistory] = useState<GasReading[]>([]);
@@ -50,14 +51,15 @@ export function useGasSimulation() {
     setGasLevel(val);
   }, []);
 
-  // Trigger notification on safe -> danger transition
-  useEffect(() => {
-    if (prevStatusRef.current !== "danger" && status === "danger") {
-      setNotificationCount((n) => n + 1);
-    }
-    prevStatusRef.current = status;
-  }, [status]);
+  // Helper to sync phase state and ref
+  const updatePhase = useCallback((p: Phase) => {
+    phaseRef.current = p;
+    setPhase(p);
+  }, []);
 
+  // Optimization: Compute derived status transitions synchronously within the timer
+  // callback to batch all state updates (gasLevel, history, notificationCount) in a single render pass.
+  // Using phaseRef prevents tearing down and recreating the interval on phase transitions.
   useEffect(() => {
     if (paused || shutdown) return;
     const id = setInterval(() => {
@@ -73,7 +75,8 @@ export function useGasSimulation() {
 
       const prev = gasLevelRef.current;
       let next = prev;
-      switch (phase) {
+      const currentPhase = phaseRef.current;
+      switch (currentPhase) {
         case "safe":
           // drift around 5-25%
           next = 8 + Math.random() * 17 + Math.sin(phaseTickRef.current / 3) * 3;
@@ -102,36 +105,55 @@ export function useGasSimulation() {
         return nh;
       });
 
+      const bounded = Math.max(0, Math.min(100, next));
+      updateGasLevel(bounded);
+      setLastUpdate(now);
+
+      // Inline status transition check to eliminate secondary useEffect re-renders
+      const nextStatus: Status = bounded > HIGH_THRESHOLD ? "danger" : "safe";
+      if (prevStatusRef.current !== "danger" && nextStatus === "danger") {
+        setNotificationCount((n) => n + 1);
+      }
+      prevStatusRef.current = nextStatus;
+
+      const rounded = Math.round(bounded);
+      setHistory((prevHistory) => {
+        const truncated = prevHistory.length >= HISTORY_LEN ? prevHistory.slice(1) : prevHistory;
+        return [...truncated, { t: now, value: rounded }];
+      });
+
       // Phase advance
-      if (phaseTickRef.current >= PHASE_TICKS[phase]) {
+      if (phaseTickRef.current >= PHASE_TICKS[currentPhase]) {
         phaseTickRef.current = 0;
-        setPhase((p) => {
-          const order: Phase[] = ["safe", "rising", "danger", "recovery"];
-          return order[(order.indexOf(p) + 1) % order.length];
-        });
+        const order: Phase[] = ["safe", "rising", "danger", "recovery"];
+        const nextPhase = order[(order.indexOf(currentPhase) + 1) % order.length];
+        updatePhase(nextPhase);
       }
     }, TICK_MS);
     return () => clearInterval(id);
   }, [phase, paused, shutdown]);
+  }, [paused, shutdown, updateGasLevel, updatePhase]);
 
   const triggerLeak = useCallback(() => {
     if (shutdown) return;
     phaseTickRef.current = 0;
-    setPhase("rising");
-  }, [shutdown]);
+    updatePhase("rising");
+  }, [shutdown, updatePhase]);
 
   const emergencyShutdown = useCallback(() => {
     setShutdown(true);
     updateGasLevel(0);
+    prevStatusRef.current = "shutdown";
   }, [updateGasLevel]);
 
   const reset = useCallback(() => {
     setShutdown(false);
     setPaused(false);
     phaseTickRef.current = 0;
-    setPhase("safe");
+    updatePhase("safe");
     updateGasLevel(8);
-  }, [updateGasLevel]);
+    prevStatusRef.current = "safe";
+  }, [updateGasLevel, updatePhase]);
 
   const togglePause = useCallback(() => setPaused((p) => !p), []);
 
