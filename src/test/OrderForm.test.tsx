@@ -88,6 +88,18 @@ describe("OrderForm Security Tests", () => {
     vi.useRealTimers();
   });
 
+  it("enforces explicit maxLength attributes on form controls to prevent DoS payload abuse", () => {
+    render(<OrderForm product={dummyProduct} onClose={vi.fn()} />);
+
+    const nameInput = screen.getByLabelText(/Naam/i);
+    const mobileInput = screen.getByLabelText(/Mobile Number/i);
+    const addressInput = screen.getByLabelText(/Mukammal Address/i);
+
+    expect(nameInput).toHaveAttribute("maxLength", "100");
+    expect(mobileInput).toHaveAttribute("maxLength", "11");
+    expect(addressInput).toHaveAttribute("maxLength", "300");
+  });
+
   it("rejects invalid city selection not in allowed city whitelist", () => {
     render(<OrderForm product={dummyProduct} onClose={vi.fn()} />);
 
