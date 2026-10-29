@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 // Animated circular gas gauge with neon glow
 interface Props {
   value: number; // 0-100
@@ -5,7 +7,7 @@ interface Props {
   threshold: number;
 }
 
-export default function GasMeter({ value, status, threshold }: Props) {
+function GasMeter({ value, status, threshold }: Props) {
   const size = 240;
   const stroke = 14;
   const r = (size - stroke) / 2;
@@ -16,8 +18,16 @@ export default function GasMeter({ value, status, threshold }: Props) {
     status === "danger" ? "var(--iot-danger)" : status === "shutdown" ? "var(--iot-muted)" : "var(--iot-safe)";
 
   return (
-    <div className="relative flex flex-col items-center justify-center">
-      <svg width={size} height={size} className="-rotate-90">
+    <div
+      role="meter"
+      aria-label="Live gas concentration"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuetext={`${value}% LEL`}
+      className="relative flex flex-col items-center justify-center"
+    >
+      <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
         <defs>
           <linearGradient id="gasGrad" x1="0" x2="1" y1="0" y2="1">
             <stop offset="0%" stopColor={`hsl(${colorVar})`} />
@@ -61,3 +71,5 @@ export default function GasMeter({ value, status, threshold }: Props) {
     </div>
   );
 }
+
+export default memo(GasMeter);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Wifi, WifiOff, Cloud, Volume2, Lightbulb, Smartphone, ShieldCheck, Power,
@@ -18,16 +18,28 @@ import ComponentsGrid from "@/components/iot/ComponentsGrid";
 import FlowDiagram from "@/components/iot/FlowDiagram";
 import CircuitPreview from "@/components/iot/CircuitPreview";
 
-const IotDemo = () => {
-  const sim = useGasSimulation();
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [now, setNow] = useState(new Date());
-  const lastNotifRef = useRef(0);
+// Performance optimization: Isolate 1-second clock state into a dedicated memoized component
+// so that clock tick intervals do not trigger full re-renders of the IotDemo page tree.
+const HeaderClock = memo(function HeaderClock() {
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
+
+  return (
+    <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full glass tabular-nums">
+      <Activity className="w-3.5 h-3.5 neon-cyan" />
+      <span>{now.toLocaleTimeString()}</span>
+    </div>
+  );
+});
+
+const IotDemo = () => {
+  const sim = useGasSimulation();
+  const [alertOpen, setAlertOpen] = useState(false);
+  const lastNotifRef = useRef(0);
 
   // Trigger popup + toast when notification count increments (i.e. new danger event)
   useEffect(() => {
@@ -57,8 +69,12 @@ const IotDemo = () => {
       <header className="relative z-10 border-b border-white/10 backdrop-blur-md bg-black/20">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <Link to="/" className="text-white/60 hover:text-white">
-              <ArrowLeft className="w-5 h-5" />
+            <Link
+              to="/"
+              aria-label="Back to store"
+              className="text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-md p-1 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
             </Link>
             <div className="flex items-center gap-2">
               <div className="relative">
@@ -82,10 +98,7 @@ const IotDemo = () => {
               <Cloud className="w-3.5 h-3.5 neon-cyan animate-pulse-glow" />
               <span>Cloud Sync</span>
             </div>
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full glass tabular-nums">
-              <Activity className="w-3.5 h-3.5 neon-cyan" />
-              <span>{now.toLocaleTimeString()}</span>
-            </div>
+            <HeaderClock />
           </div>
         </div>
       </header>

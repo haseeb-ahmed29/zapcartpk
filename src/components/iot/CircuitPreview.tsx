@@ -1,5 +1,7 @@
+import { memo } from "react";
+
 // Stylized circuit layout with animated dashed connection lines
-export default function CircuitPreview({ alarming }: { alarming: boolean }) {
+function CircuitPreview({ alarming }: { alarming: boolean }) {
   const stroke = alarming ? "hsl(var(--iot-danger))" : "hsl(var(--iot-accent))";
   return (
     <div className="relative w-full h-72 grid-bg rounded-xl overflow-hidden p-4">
@@ -31,6 +33,8 @@ export default function CircuitPreview({ alarming }: { alarming: boolean }) {
     </div>
   );
 }
+
+export default memo(CircuitPreview);
 
 function Node({
   x, y, label, color, big, alarming,
