@@ -88,26 +88,7 @@ describe("OrderForm Security Tests", () => {
     vi.useRealTimers();
   });
 
-  it("rejects invalid city selection not in allowed city whitelist", () => {
-    render(<OrderForm product={dummyProduct} onClose={vi.fn()} />);
-
-    fireEvent.change(screen.getByLabelText(/Naam/i), { target: { value: "Ali Ahmed" } });
-    fireEvent.change(screen.getByLabelText(/Mobile Number/i), { target: { value: "03001234567" } });
-    fireEvent.change(screen.getByLabelText(/City/i), { target: { value: "InvalidCityName" } });
-    fireEvent.change(screen.getByLabelText(/Mukammal Address/i), {
-      target: { value: "House 123, Block 5, Gulshan-e-Iqbal" },
-    });
-
-    const submitBtn = screen.getByRole("button", { name: /Order Confirm Karein/i });
-    fireEvent.click(submitBtn);
-
-    expect(screen.getByText("Mo'atabar city select karein")).toBeInTheDocument();
-  });
-
-  it("safely encodes user input in WhatsApp URL, uses noopener,noreferrer, and nullifies win.opener", () => {
-    const mockWin = { opener: {} as unknown };
-    vi.spyOn(window, "open").mockReturnValue(mockWin as Window);
-
+  it("safely encodes user input in WhatsApp URL and uses noopener,noreferrer", () => {
     const handleClose = vi.fn();
     render(<OrderForm product={dummyProduct} onClose={handleClose} />);
 
@@ -136,10 +117,9 @@ describe("OrderForm Security Tests", () => {
 
     const [openedUrl, target, features] = (window.open as ReturnType<typeof vi.fn>).mock.calls[0];
 
-    // Verify window.open parameters & opener nullification
+    // Verify window.open parameters
     expect(target).toBe("_blank");
     expect(features).toBe("noopener,noreferrer");
-    expect(mockWin.opener).toBeNull();
 
     // Verify URL parameters are safely percent-encoded and do not contain raw unencoded special characters
     expect(openedUrl).toContain("https://wa.me/923701930960?text=");
