@@ -24,7 +24,6 @@ const HISTORY_LEN = 40;
 
 export function useGasSimulation() {
   const [gasLevel, setGasLevel] = useState(8);
-  const gasLevelRef = useRef(8);
   const [phase, setPhase] = useState<Phase>("safe");
   const phaseRef = useRef<Phase>("safe");
   const [paused, setPaused] = useState(false);
@@ -37,6 +36,7 @@ export function useGasSimulation() {
 
   const phaseTickRef = useRef(0);
   const prevStatusRef = useRef<Status>("safe");
+  const gasLevelRef = useRef(8);
 
   // Keep gasLevelRef updated for synchronous access inside interval callback
   gasLevelRef.current = gasLevel;
@@ -93,6 +93,18 @@ export function useGasSimulation() {
           next = prev + (10 - prev) * 0.18 + (Math.random() * 3 - 1.5);
           break;
       }
+      const clampedGas = Math.max(0, Math.min(100, next));
+      gasLevelRef.current = clampedGas;
+      setGasLevel(clampedGas);
+      setLastUpdate(now);
+
+      const rounded = Math.round(clampedGas);
+      setHistory((h) => {
+        const nh = [...h, { t: now, value: rounded }];
+        if (nh.length > HISTORY_LEN) nh.shift();
+        return nh;
+      });
+
       const bounded = Math.max(0, Math.min(100, next));
       updateGasLevel(bounded);
       setLastUpdate(now);
@@ -119,6 +131,7 @@ export function useGasSimulation() {
       }
     }, TICK_MS);
     return () => clearInterval(id);
+  }, [phase, paused, shutdown]);
   }, [paused, shutdown, updateGasLevel, updatePhase]);
 
   const triggerLeak = useCallback(() => {

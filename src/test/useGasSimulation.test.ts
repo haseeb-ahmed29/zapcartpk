@@ -19,6 +19,7 @@ describe("useGasSimulation hook", () => {
     expect(result.current.phase).toBe("safe");
     expect(result.current.history).toEqual([]);
     expect(result.current.shutdown).toBe(false);
+    expect(result.current.paused).toBe(false);
   });
 
   it("should update gas level and history on timer ticks", () => {
@@ -30,6 +31,10 @@ describe("useGasSimulation hook", () => {
 
     expect(result.current.history.length).toBe(1);
     expect(result.current.history[0].value).toBe(result.current.gasLevel);
+    expect(result.current.history[0].value).toBeGreaterThanOrEqual(0);
+  });
+
+  it("should trigger leak and change phase to rising", () => {
   });
 
   it("should trigger leak, transition to danger, and increment notificationCount", () => {

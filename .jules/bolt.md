@@ -9,3 +9,6 @@
 ## 2025-02-16 - Avoid redundant useEffect state syncs in timer loops
 **Learning:** Updating state in a timer callback (`setInterval`) with temporary values and relying on a secondary `useEffect([state])` to patch dependent state causes double re-renders on every tick (e.g. 4 renders/sec instead of 2 renders/sec for 500ms ticks).
 **Action:** Compute updated values directly in the timer callback and batch state updates atomically in a single render cycle using `useRef` to access current state.
+## 2026-10-27 - Isolating Clock State to Prevent Dashboard Component Tree Re-renders
+**Learning:** Holding clock/timer state (`setInterval` updating `now` state every second) at the top level of a large dashboard page causes the entire component tree and all child JSX specs to re-evaluate every second.
+**Action:** Always extract high-frequency local display timers (such as header clocks) into dedicated memoized components (`React.memo`) to scope re-renders to the clock element alone.
