@@ -57,8 +57,12 @@ const IotDemo = () => {
       <header className="relative z-10 border-b border-white/10 backdrop-blur-md bg-black/20">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <Link to="/" className="text-white/60 hover:text-white">
-              <ArrowLeft className="w-5 h-5" />
+            <Link
+              to="/"
+              aria-label="Back to store"
+              className="text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-md p-1 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
             </Link>
             <div className="flex items-center gap-2">
               <div className="relative">
