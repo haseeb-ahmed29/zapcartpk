@@ -16,7 +16,6 @@ const ProductCard = ({ name, price, oldPrice, description, image, onBuy }: Produ
         <img
           src={image}
           alt={name}
-          loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       </div>
@@ -32,10 +31,9 @@ const ProductCard = ({ name, price, oldPrice, description, image, onBuy }: Produ
           </div>
           <button
             onClick={onBuy}
-            aria-label={`Buy Now: ${name} for Rs. ${price.toLocaleString()}`}
-            className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 hover:opacity-90 transition-opacity"
           >
-            <ShoppingCart className="w-4 h-4" aria-hidden="true" />
+            <ShoppingCart className="w-4 h-4" />
             Buy Now
           </button>
         </div>
