@@ -3,6 +3,7 @@ import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, ReferenceLine, Tool
 import type { GasReading } from "@/hooks/useGasSimulation";
 
 function GasChart({ data, threshold }: { data: GasReading[]; threshold: number }) {
+  // Memoize formatted data computation to prevent redundant array allocations on re-renders
   // Memoize data transformation to avoid re-allocating formatted objects array on parent re-renders when data hasn't changed
   const formatted = useMemo(
     () => data.map((d, i) => ({ idx: i, value: d.value })),

@@ -32,14 +32,25 @@ describe("useGasSimulation hook", () => {
     expect(result.current.history[0].value).toBe(result.current.gasLevel);
   });
 
-  it("should trigger leak and change phase to rising", () => {
+  it("should trigger leak, transition to danger, and increment notificationCount", () => {
     const { result } = renderHook(() => useGasSimulation());
+
+    expect(result.current.notificationCount).toBe(0);
 
     act(() => {
       result.current.triggerLeak();
     });
 
     expect(result.current.phase).toBe("rising");
+
+    // Advance timer enough ticks for gas level to cross HIGH_THRESHOLD (60)
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+
+    expect(result.current.gasLevel).toBeGreaterThan(60);
+    expect(result.current.status).toBe("danger");
+    expect(result.current.notificationCount).toBe(1);
   });
 
   it("should handle emergency shutdown and reset", () => {
