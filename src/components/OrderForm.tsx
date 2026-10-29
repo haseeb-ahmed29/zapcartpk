@@ -103,6 +103,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Apna poora naam likhein"
+              maxLength={100}
               aria-invalid={!!errors.name}
               aria-describedby={errors.name ? "name-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
@@ -124,6 +125,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
               value={form.mobile}
               onChange={(e) => setForm({ ...form, mobile: e.target.value })}
               placeholder="03XXXXXXXXX"
+              maxLength={11}
               aria-invalid={!!errors.mobile}
               aria-describedby={errors.mobile ? "mobile-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
@@ -169,6 +171,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
               onChange={(e) => setForm({ ...form, address: e.target.value })}
               placeholder="Ghar ka number, gali, mohalla, area"
               rows={3}
+              maxLength={300}
               aria-invalid={!!errors.address}
               aria-describedby={errors.address ? "address-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition resize-none"
