@@ -130,21 +130,45 @@ const IotDemo = () => {
           <div className="flex gap-2">
             {!isShutdown && (
               <>
-                <Button size="sm" variant="secondary" onClick={sim.togglePause}>
-                  {sim.paused ? <Play className="w-4 h-4 mr-1" /> : <Pause className="w-4 h-4 mr-1" />}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={sim.togglePause}
+                  aria-label={sim.paused ? "Resume simulation" : "Pause simulation"}
+                >
+                  {sim.paused ? (
+                    <Play className="w-4 h-4 mr-1" aria-hidden="true" />
+                  ) : (
+                    <Pause className="w-4 h-4 mr-1" aria-hidden="true" />
+                  )}
                   {sim.paused ? "Resume" : "Pause"}
                 </Button>
-                <Button size="sm" onClick={sim.triggerLeak} className="bg-orange-500 hover:bg-orange-600 text-white">
-                  <Flame className="w-4 h-4 mr-1" /> Trigger Leak
+                <Button
+                  size="sm"
+                  onClick={sim.triggerLeak}
+                  aria-label="Trigger Leak simulation"
+                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                >
+                  <Flame className="w-4 h-4 mr-1" aria-hidden="true" /> Trigger Leak
                 </Button>
-                <Button size="sm" variant="destructive" onClick={sim.emergencyShutdown}>
-                  <Power className="w-4 h-4 mr-1" /> Emergency Shutdown
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={sim.emergencyShutdown}
+                  aria-label="Emergency Shutdown"
+                >
+                  <Power className="w-4 h-4 mr-1" aria-hidden="true" /> Emergency Shutdown
                 </Button>
               </>
             )}
             {isShutdown && (
-              <Button size="sm" onClick={sim.reset} className="bg-cyan-500 hover:bg-cyan-600 text-white">
-                <Zap className="w-4 h-4 mr-1" /> Reset System
+              <Button
+                size="sm"
+                onClick={sim.reset}
+                aria-label="Reset System simulation"
+                className="bg-cyan-500 hover:bg-cyan-600 text-white"
+              >
+                <Zap className="w-4 h-4 mr-1" aria-hidden="true" /> Reset System
               </Button>
             )}
           </div>

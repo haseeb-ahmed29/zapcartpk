@@ -18,7 +18,7 @@ describe("GasMeter Accessibility", () => {
   });
 });
 
-describe("IotDemo Header Accessibility", () => {
+describe("IotDemo Accessibility & UX", () => {
   beforeEach(() => {
     global.ResizeObserver = class ResizeObserver {
       observe() {}
@@ -37,5 +37,22 @@ describe("IotDemo Header Accessibility", () => {
     const backLink = screen.getByRole("link", { name: "Back to store" });
     expect(backLink).toBeInTheDocument();
     expect(backLink).toHaveAttribute("href", "/");
+  });
+
+  it("renders simulation control buttons with accessible ARIA labels", () => {
+    render(
+      <MemoryRouter>
+        <IotDemo />
+      </MemoryRouter>
+    );
+
+    const pauseButton = screen.getByRole("button", { name: "Pause simulation" });
+    expect(pauseButton).toBeInTheDocument();
+
+    const triggerLeakButton = screen.getByRole("button", { name: "Trigger Leak simulation" });
+    expect(triggerLeakButton).toBeInTheDocument();
+
+    const shutdownButton = screen.getByRole("button", { name: "Emergency Shutdown" });
+    expect(shutdownButton).toBeInTheDocument();
   });
 });
