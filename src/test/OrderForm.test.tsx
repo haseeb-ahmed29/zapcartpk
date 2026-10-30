@@ -27,10 +27,18 @@ describe("OrderForm Accessibility and UX Tests", () => {
     expect(dialog).toHaveAttribute("aria-modal", "true");
     expect(dialog).toHaveAttribute("aria-labelledby", "order-dialog-title");
 
-    const closeBtn = screen.getByRole("button", { name: "Close order form" });
+    const closeBtn = screen.getByRole("button", { name: "Close order dialog" });
     expect(closeBtn).toBeInTheDocument();
 
     fireEvent.click(closeBtn);
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes modal when Escape key is pressed", () => {
+    const handleClose = vi.fn();
+    render(<OrderForm product={dummyProduct} onClose={handleClose} />);
+
+    fireEvent.keyDown(window, { key: "Escape" });
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 

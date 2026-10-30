@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { X, Loader2 } from "lucide-react";
 import { z } from "zod";
@@ -29,6 +29,16 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
   const [form, setForm] = useState({ name: "", mobile: "", address: "", city: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   if (!product) return null;
 
@@ -77,8 +87,8 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
           </h2>
           <button
             onClick={onClose}
-            aria-label="Close order form"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Close order dialog"
+            className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <X className="w-5 h-5" />
           </button>
@@ -183,7 +193,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-primary text-primary-foreground py-3 rounded-md font-display font-semibold text-base hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full bg-primary text-primary-foreground py-3 rounded-md font-display font-semibold text-base hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {submitting ? (
               <>
