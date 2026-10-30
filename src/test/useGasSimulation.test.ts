@@ -1,6 +1,3 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useGasSimulation } from "../hooks/useGasSimulation";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useGasSimulation } from "@/hooks/useGasSimulation";
@@ -14,10 +11,6 @@ describe("useGasSimulation hook", () => {
     vi.useRealTimers();
   });
 
-  it("initializes with default safe state", () => {
-    const { result } = renderHook(() => useGasSimulation());
-    expect(result.current.status).toBe("safe");
-    expect(result.current.phase).toBe("safe");
   it("should initialize with default safe state", () => {
     const { result } = renderHook(() => useGasSimulation());
 
@@ -29,7 +22,6 @@ describe("useGasSimulation hook", () => {
     expect(result.current.paused).toBe(false);
   });
 
-  it("updates history and gas level cleanly after interval ticks", () => {
   it("should update gas level and history on timer ticks", () => {
     const { result } = renderHook(() => useGasSimulation());
 
@@ -48,13 +40,14 @@ describe("useGasSimulation hook", () => {
     expect(result.current.history[2].value).toBe(result.current.gasLevel);
   });
 
-  it("triggers leak and advances phase to rising", () => {
+  it("should trigger leak and change phase to rising", () => {
     const { result } = renderHook(() => useGasSimulation());
 
-    expect(result.current.history[0].value).toBeGreaterThanOrEqual(0);
-  });
+    act(() => {
+      result.current.triggerLeak();
+    });
 
-  it("should trigger leak and change phase to rising", () => {
+    expect(result.current.phase).toBe("rising");
   });
 
   it("should trigger leak, transition to danger, and increment notificationCount", () => {
@@ -67,12 +60,6 @@ describe("useGasSimulation hook", () => {
     });
 
     expect(result.current.phase).toBe("rising");
-  });
-
-  it("handles emergency shutdown and reset", () => {
-    const { result } = renderHook(() => useGasSimulation());
-
-    act(() => {
 
     // Advance timer enough ticks for gas level to cross HIGH_THRESHOLD (60)
     act(() => {
