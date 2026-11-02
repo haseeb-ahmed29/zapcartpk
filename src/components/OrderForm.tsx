@@ -202,7 +202,8 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-primary text-primary-foreground py-3 rounded-md font-display font-semibold text-base hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
+            aria-busy={submitting}
+            className="w-full bg-primary text-primary-foreground py-3 rounded-md font-display font-semibold text-base hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {submitting ? (
               <>
