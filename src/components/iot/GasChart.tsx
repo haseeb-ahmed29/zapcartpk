@@ -1,17 +1,11 @@
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, ReferenceLine, Tooltip } from "recharts";
 import type { GasReading } from "@/hooks/useGasSimulation";
 
 function GasChart({ data, threshold }: { data: GasReading[]; threshold: number }) {
   // Performance optimization: Pass `data` (GasReading[]) directly to LineChart
-  // instead of mapping over items to build formatted { idx, value } objects on every render pass.
-  // LineChart uses `dataKey="value"` on <Line> and `dataKey="t"` on <XAxis hide /> directly.
-  // Memoize formatted data computation to prevent redundant array allocations on re-renders
-  // Memoize data transformation to avoid re-allocating formatted objects array on parent re-renders when data hasn't changed
-  const formatted = useMemo(
-    () => data.map((d, i) => ({ idx: i, value: d.value })),
-    [data]
-  );
+  // without intermediate array mapping/transformations, avoiding 40 object allocations
+  // on every 500ms simulation tick.
   return (
     <div className="h-44 w-full">
       <ResponsiveContainer width="100%" height="100%">
