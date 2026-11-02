@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { X, Loader2 } from "lucide-react";
 import { z } from "zod";
@@ -29,6 +29,18 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
   const [form, setForm] = useState({ name: "", mobile: "", address: "", city: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  // Close dialog when user presses the Escape key
+  useEffect(() => {
+    if (!product) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [product, onClose]);
 
   if (!product) return null;
 
@@ -69,6 +81,11 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="order-dialog-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div className="bg-card rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-border">
@@ -76,11 +93,12 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
             Order Place Karein
           </h2>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Close order form"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors rounded-md p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -100,6 +118,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
             <input
               id="order-name"
               type="text"
+              autoFocus
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Apna poora naam likhein"
