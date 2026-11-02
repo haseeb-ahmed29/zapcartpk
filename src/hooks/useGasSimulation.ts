@@ -24,11 +24,13 @@ const HISTORY_LEN = 40;
 
 export function useGasSimulation() {
   const [gasLevel, setGasLevel] = useState(8);
-  // Synchronous ref tracking the current gas level to avoid redundant re-renders
+  // Ref tracking current gas level for synchronous access inside interval callback
   const gasLevelRef = useRef(8);
 
   const [phase, setPhase] = useState<Phase>("safe");
+  // Ref tracking current phase to avoid re-instantiating the setInterval timer on phase changes
   const phaseRef = useRef<Phase>("safe");
+
   const [paused, setPaused] = useState(false);
   const [shutdown, setShutdown] = useState(false);
   const [history, setHistory] = useState<GasReading[]>([]);
@@ -39,9 +41,8 @@ export function useGasSimulation() {
 
   const phaseTickRef = useRef(0);
   const prevStatusRef = useRef<Status>("safe");
-  const gasLevelRef = useRef(8);
 
-  // Keep gasLevelRef updated for synchronous access inside interval callback
+  // Keep gasLevelRef updated for synchronous access
   gasLevelRef.current = gasLevel;
 
   const status: Status = shutdown ? "shutdown" : gasLevel > HIGH_THRESHOLD ? "danger" : "safe";
@@ -60,14 +61,16 @@ export function useGasSimulation() {
     setPhase(p);
   }, []);
 
-  // Optimization: Compute derived status transitions synchronously within the timer
-  // callback to batch all state updates (gasLevel, history, notificationCount) in a single render pass.
-  // Using phaseRef prevents tearing down and recreating the interval on phase transitions.
+  // Performance optimization:
+  // 1. Compute gas level, history, and status transitions synchronously within the timer
+  //    callback to batch all state updates (gasLevel, lastUpdate, history, notificationCount)
+  //    in a single render pass per tick (reducing re-renders by ~50%).
+  // 2. Access currentPhase via phaseRef.current so the setInterval timer does not tear down
+  //    and re-instantiate on every phase change (~every 5-8s).
   useEffect(() => {
     if (paused || shutdown) return;
     const id = setInterval(() => {
       phaseTickRef.current += 1;
-      const now = Date.now();
       setCloudPing((p) => p + 1);
 
       // Occasional wifi flicker
@@ -77,9 +80,6 @@ export function useGasSimulation() {
       }
 
       // Calculate next gas level using gasLevelRef to avoid extra state update cycles
-      const prev = gasLevelRef.current;
-      let next = prev;
-      switch (phase) {
       const prev = gasLevelRef.current;
       let next = prev;
       const currentPhase = phaseRef.current;
@@ -100,33 +100,13 @@ export function useGasSimulation() {
           next = prev + (10 - prev) * 0.18 + (Math.random() * 3 - 1.5);
           break;
       }
-      next = Math.max(0, Math.min(100, next));
-      gasLevelRef.current = next;
-
-      const now = Date.now();
-      const rounded = Math.round(next);
-
-      // Performance Optimization: Single-batch state updates per simulation tick.
-      // Previously, history appended dummy values ({ value: 0 }) in setInterval
-      // and required an extra useEffect([gasLevel]) to copy and fix the last item.
-      // Setting both gasLevel and history in the interval callback cuts re-renders by 50%.
-      setGasLevel(next);
-      setLastUpdate(now);
-      const clampedGas = Math.max(0, Math.min(100, next));
-      gasLevelRef.current = clampedGas;
-      setGasLevel(clampedGas);
-      setLastUpdate(now);
-
-      const rounded = Math.round(clampedGas);
-      setHistory((h) => {
-        const nh = [...h, { t: now, value: rounded }];
-        if (nh.length > HISTORY_LEN) nh.shift();
-        return nh;
-      });
-
       const bounded = Math.max(0, Math.min(100, next));
+      const rounded = Math.round(bounded);
+      const timestamp = Date.now();
+
+      // Performance Optimization: Batch state updates atomically in a single pass.
       updateGasLevel(bounded);
-      setLastUpdate(now);
+      setLastUpdate(timestamp);
 
       // Inline status transition check to eliminate secondary useEffect re-renders
       const nextStatus: Status = bounded > HIGH_THRESHOLD ? "danger" : "safe";
@@ -135,10 +115,9 @@ export function useGasSimulation() {
       }
       prevStatusRef.current = nextStatus;
 
-      const rounded = Math.round(bounded);
       setHistory((prevHistory) => {
         const truncated = prevHistory.length >= HISTORY_LEN ? prevHistory.slice(1) : prevHistory;
-        return [...truncated, { t: now, value: rounded }];
+        return [...truncated, { t: timestamp, value: rounded }];
       });
 
       // Phase advance
@@ -150,7 +129,6 @@ export function useGasSimulation() {
       }
     }, TICK_MS);
     return () => clearInterval(id);
-  }, [phase, paused, shutdown]);
   }, [paused, shutdown, updateGasLevel, updatePhase]);
 
   const triggerLeak = useCallback(() => {
