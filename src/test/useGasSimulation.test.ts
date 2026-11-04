@@ -20,6 +20,7 @@ describe("useGasSimulation hook", () => {
     expect(result.current.history).toEqual([]);
     expect(result.current.shutdown).toBe(false);
     expect(result.current.paused).toBe(false);
+    expect(result.current.notificationCount).toBe(0);
   });
 
   it("should update gas level and history on timer ticks", () => {
@@ -62,6 +63,7 @@ describe("useGasSimulation hook", () => {
     expect(result.current.phase).toBe("rising");
 
     // Advance timer enough ticks for gas level to cross HIGH_THRESHOLD (60)
+    // Advance timer ticks for gas level to cross HIGH_THRESHOLD (60)
     act(() => {
       vi.advanceTimersByTime(5000);
     });
@@ -95,5 +97,31 @@ describe("useGasSimulation hook", () => {
     expect(result.current.status).toBe("safe");
     expect(result.current.phase).toBe("safe");
     expect(result.current.gasLevel).toBe(8);
+  });
+
+  it("should toggle pause state cleanly", () => {
+    const { result } = renderHook(() => useGasSimulation());
+
+    expect(result.current.paused).toBe(false);
+
+    act(() => {
+      result.current.togglePause();
+    });
+
+    expect(result.current.paused).toBe(true);
+
+    const prevLevel = result.current.gasLevel;
+
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+
+    expect(result.current.gasLevel).toBe(prevLevel);
+
+    act(() => {
+      result.current.togglePause();
+    });
+
+    expect(result.current.paused).toBe(false);
   });
 });

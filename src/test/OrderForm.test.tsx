@@ -29,8 +29,34 @@ describe("OrderForm Accessibility and UX Tests", () => {
 
     const closeBtn = screen.getByRole("button", { name: "Close order form" });
     expect(closeBtn).toBeInTheDocument();
+    expect(closeBtn).toHaveAttribute("type", "button");
+    expect(closeBtn).toHaveClass("focus-visible:ring-2");
 
     fireEvent.click(closeBtn);
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes modal on Escape key press", () => {
+    const handleClose = vi.fn();
+    render(<OrderForm product={dummyProduct} onClose={handleClose} />);
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes modal when clicking backdrop overlay and ignores click inside dialog", () => {
+    const handleClose = vi.fn();
+    render(<OrderForm product={dummyProduct} onClose={handleClose} />);
+
+    const dialogOverlay = screen.getByRole("dialog");
+    const modalContent = screen.getByText("Order Place Karein");
+
+    // Click inside modal content should not close
+    fireEvent.click(modalContent);
+    expect(handleClose).not.toHaveBeenCalled();
+
+    // Click backdrop overlay directly should trigger onClose
+    fireEvent.click(dialogOverlay);
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 

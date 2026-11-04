@@ -1,4 +1,5 @@
 import { ShoppingCart } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface ProductCardProps {
   name: string;
@@ -10,15 +11,29 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ name, price, oldPrice, description, image, onBuy }: ProductCardProps) => {
+  const discountPercent =
+    oldPrice && oldPrice > price ? Math.round(((oldPrice - price) / oldPrice) * 100) : null;
+
   return (
     <div className="group bg-card rounded-lg overflow-hidden shadow-[var(--card-shadow)] hover:shadow-[var(--card-hover-shadow)] transition-all duration-300 hover:-translate-y-1 flex flex-col">
-      <div className="aspect-square overflow-hidden bg-secondary">
+      <div className="relative aspect-square overflow-hidden bg-secondary">
         <img
           src={image}
           alt={name}
           loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
+        {discountPercent !== null && (
+          <div className="absolute top-3 right-3">
+            <Badge
+              variant="destructive"
+              aria-label={`${discountPercent}% OFF discount`}
+              className="font-bold tracking-wide shadow-sm"
+            >
+              {discountPercent}% OFF
+            </Badge>
+          </div>
+        )}
       </div>
       <div className="p-5 flex flex-col flex-1">
         <h3 className="font-display font-semibold text-lg text-card-foreground">{name}</h3>
@@ -27,7 +42,10 @@ const ProductCard = ({ name, price, oldPrice, description, image, onBuy }: Produ
           <div className="flex items-center gap-2">
             <span className="font-display font-bold text-xl text-primary">Rs. {price.toLocaleString()}</span>
             {oldPrice && (
-              <span className="text-muted-foreground text-sm line-through">Rs. {oldPrice.toLocaleString()}</span>
+              <span className="text-muted-foreground text-sm line-through">
+                <span className="sr-only">Original price: </span>
+                Rs. {oldPrice.toLocaleString()}
+              </span>
             )}
           </div>
           <button

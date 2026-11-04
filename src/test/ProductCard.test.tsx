@@ -34,4 +34,24 @@ describe("ProductCard", () => {
     fireEvent.click(buyButton);
     expect(onBuy).toHaveBeenCalledTimes(1);
   });
+
+  it("calculates and displays discount percentage badge when oldPrice is higher than price", () => {
+    // 2500 vs 3500 is ~29% off: round(((3500 - 2500) / 3500) * 100) = 29
+    render(<ProductCard {...defaultProps} />);
+
+    const discountBadge = screen.getByLabelText("29% OFF discount");
+    expect(discountBadge).toBeInTheDocument();
+    expect(discountBadge).toHaveTextContent("29% OFF");
+    expect(screen.getByText("Original price:")).toHaveClass("sr-only");
+  });
+
+  it("does not render discount badge when oldPrice is not provided", () => {
+    const propsWithoutDiscount = {
+      ...defaultProps,
+      oldPrice: undefined,
+    };
+    render(<ProductCard {...propsWithoutDiscount} />);
+
+    expect(screen.queryByText(/% OFF/)).not.toBeInTheDocument();
+  });
 });
