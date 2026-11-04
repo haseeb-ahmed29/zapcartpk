@@ -24,6 +24,7 @@ const HISTORY_LEN = 40;
 
 export function useGasSimulation() {
   const [gasLevel, setGasLevel] = useState(8);
+  const [phase, setPhase] = useState<Phase>("safe");
   // Ref tracking current gas level for synchronous access inside interval callback
   const gasLevelRef = useRef(8);
 
@@ -41,6 +42,8 @@ export function useGasSimulation() {
 
   const phaseTickRef = useRef(0);
   const prevStatusRef = useRef<Status>("safe");
+  const gasLevelRef = useRef(8);
+  const phaseRef = useRef<Phase>("safe");
 
   // Keep gasLevelRef updated for synchronous access
   gasLevelRef.current = gasLevel;
@@ -85,15 +88,12 @@ export function useGasSimulation() {
       const currentPhase = phaseRef.current;
       switch (currentPhase) {
         case "safe":
-          // drift around 5-25%
           next = 8 + Math.random() * 17 + Math.sin(phaseTickRef.current / 3) * 3;
           break;
         case "rising":
-          // climb from current toward ~85
           next = prev + (85 - prev) * 0.18 + (Math.random() * 4 - 2);
           break;
         case "danger":
-          // jitter 78-96
           next = 80 + Math.random() * 16;
           break;
         case "recovery":
@@ -108,7 +108,6 @@ export function useGasSimulation() {
       updateGasLevel(bounded);
       setLastUpdate(timestamp);
 
-      // Inline status transition check to eliminate secondary useEffect re-renders
       const nextStatus: Status = bounded > HIGH_THRESHOLD ? "danger" : "safe";
       if (prevStatusRef.current !== "danger" && nextStatus === "danger") {
         setNotificationCount((n) => n + 1);
