@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -10,7 +11,11 @@ interface ProductCardProps {
   onBuy: () => void;
 }
 
-const ProductCard = ({ name, price, oldPrice, description, image, onBuy }: ProductCardProps) => {
+// Performance optimization: Memoize ProductCard to prevent unnecessary re-renders
+// of all product items when parent (Index) state changes (such as selecting/clearing products
+// for the order modal). When paired with a stable onBuy callback, re-renders on modal open/close
+// drop from 6 card re-renders to 0.
+const ProductCard = memo(({ name, price, oldPrice, description, image, onBuy }: ProductCardProps) => {
   const discountPercent =
     oldPrice && oldPrice > price ? Math.round(((oldPrice - price) / oldPrice) * 100) : null;
 
@@ -60,6 +65,6 @@ const ProductCard = ({ name, price, oldPrice, description, image, onBuy }: Produ
       </div>
     </div>
   );
-};
+});
 
 export default ProductCard;
