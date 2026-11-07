@@ -25,12 +25,6 @@ const HISTORY_LEN = 40;
 export function useGasSimulation() {
   const [gasLevel, setGasLevel] = useState(8);
   const [phase, setPhase] = useState<Phase>("safe");
-  // Ref tracking current gas level for synchronous access inside interval callback
-  const gasLevelRef = useRef(8);
-
-  const [phase, setPhase] = useState<Phase>("safe");
-  // Ref tracking current phase to avoid re-instantiating the setInterval timer on phase changes
-  const phaseRef = useRef<Phase>("safe");
 
   const [paused, setPaused] = useState(false);
   const [shutdown, setShutdown] = useState(false);
@@ -42,7 +36,9 @@ export function useGasSimulation() {
 
   const phaseTickRef = useRef(0);
   const prevStatusRef = useRef<Status>("safe");
+  // Ref tracking current gas level for synchronous access inside interval callback
   const gasLevelRef = useRef(8);
+  // Ref tracking current phase to avoid re-instantiating the setInterval timer on phase changes
   const phaseRef = useRef<Phase>("safe");
 
   // Keep gasLevelRef updated for synchronous access

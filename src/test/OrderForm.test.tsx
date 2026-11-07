@@ -66,13 +66,17 @@ describe("OrderForm Accessibility and UX Tests", () => {
     const nameInput = screen.getByLabelText(/Naam/i);
     expect(nameInput).toHaveAttribute("id", "order-name");
     expect(nameInput).toHaveAttribute("aria-invalid", "false");
+    expect(nameInput).toHaveAttribute("aria-required", "true");
+    expect(nameInput).toHaveAttribute("autocomplete", "name");
 
     const submitBtn = screen.getByRole("button", { name: /Order Confirm Karein/i });
-    fireEvent.click(submitBtn);
+    fireEvent.submit(submitBtn.closest("form")!);
 
     expect(nameInput).toHaveAttribute("aria-invalid", "true");
     expect(nameInput).toHaveAttribute("aria-describedby", "name-error");
-    expect(screen.getByText("Naam kam az kam 2 characters ka hona chahiye")).toBeInTheDocument();
+    const errorMsg = screen.getByText("Naam kam az kam 2 characters ka hona chahiye");
+    expect(errorMsg).toBeInTheDocument();
+    expect(errorMsg).toHaveAttribute("role", "alert");
   });
 
   it("shows loading spinner state during form submission", () => {
@@ -90,10 +94,29 @@ describe("OrderForm Accessibility and UX Tests", () => {
 
     expect(screen.getByText("Order place ho raha hai...")).toBeInTheDocument();
     expect(submitBtn).toBeDisabled();
+    expect(submitBtn).toHaveAttribute("aria-busy", "true");
 
     act(() => {
       vi.advanceTimersByTime(1500);
     });
+  });
+
+  it("includes autocomplete attributes and format hint for mobile", () => {
+    render(<OrderForm product={dummyProduct} onClose={vi.fn()} />);
+
+    const mobileInput = screen.getByLabelText(/Mobile Number/i);
+    expect(mobileInput).toHaveAttribute("autocomplete", "tel");
+    expect(mobileInput).toHaveAttribute("aria-required", "true");
+    expect(mobileInput).toHaveAttribute("aria-describedby", "mobile-hint");
+    expect(screen.getByText("Format: 03001234567 (11 digits)")).toBeInTheDocument();
+
+    const citySelect = screen.getByLabelText(/City/i);
+    expect(citySelect).toHaveAttribute("autocomplete", "address-level2");
+    expect(citySelect).toHaveAttribute("aria-required", "true");
+
+    const addressInput = screen.getByLabelText(/Mukammal Address/i);
+    expect(addressInput).toHaveAttribute("autocomplete", "street-address");
+    expect(addressInput).toHaveAttribute("aria-required", "true");
   });
 });
 
@@ -125,7 +148,7 @@ describe("OrderForm Security Tests", () => {
     });
 
     const submitBtn = screen.getByRole("button", { name: /Order Confirm Karein/i });
-    fireEvent.click(submitBtn);
+    fireEvent.submit(submitBtn.closest("form")!);
 
     expect(screen.getByText("Mo'atabar city select karein")).toBeInTheDocument();
   });
