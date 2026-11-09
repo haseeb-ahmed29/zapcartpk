@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Zap, Truck, ShieldCheck, Phone, Cpu } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
@@ -70,6 +70,22 @@ const features = [
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
 
+  // Performance optimization: Stable callback for closing the modal
+  const handleCloseModal = useCallback(() => {
+    setSelectedProduct(null);
+  }, []);
+
+  // Performance optimization: Memoize onBuy callbacks keyed by product id to ensure
+  // stable function references. This prevents all 6 ProductCard instances from re-rendering
+  // whenever `selectedProduct` opens, closes, or updates modal state.
+  const buyHandlers = useMemo(() => {
+    const handlers: Record<number, () => void> = {};
+    products.forEach((product) => {
+      handlers[product.id] = () => setSelectedProduct(product);
+    });
+    return handlers;
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
@@ -131,7 +147,7 @@ const Index = () => {
               oldPrice={product.oldPrice}
               description={product.description}
               image={product.image}
-              onBuy={() => setSelectedProduct(product)}
+              onBuy={buyHandlers[product.id]}
             />
           ))}
         </div>
@@ -152,7 +168,7 @@ const Index = () => {
       </footer>
 
       {/* Order Form Modal */}
-      <OrderForm product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      <OrderForm product={selectedProduct} onClose={handleCloseModal} />
     </div>
   );
 };
