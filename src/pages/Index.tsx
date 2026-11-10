@@ -72,6 +72,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Skip to Main Content Link for Keyboard Accessibility (WCAG 2.4.1) */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        Skip to main content
+      </a>
+
       {/* Navbar */}
       <nav className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -91,6 +99,7 @@ const Index = () => {
         </div>
       </nav>
 
+      <main id="main-content" tabIndex={-1} className="outline-none">
       {/* Hero */}
       <section className="relative h-[50vh] min-h-[360px] flex items-center justify-center overflow-hidden">
         <img src={heroBg} alt="Computer accessories" className="absolute inset-0 w-full h-full object-cover" />
@@ -136,6 +145,7 @@ const Index = () => {
           ))}
         </div>
       </section>
+      </main>
 
       {/* Footer */}
       <footer className="bg-card border-t border-border">
