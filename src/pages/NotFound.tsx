@@ -1,5 +1,6 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { Home } from "lucide-react";
 
 // Security: Sanitize pathname to prevent Log Injection / CRLF Injection (CWE-117)
 // Removes carriage returns, line feeds, and ASCII control characters (0-31, 127)
@@ -20,15 +21,22 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
+    <main className="flex min-h-screen items-center justify-center bg-muted px-4">
+      <div className="max-w-md w-full text-center bg-card p-8 rounded-xl shadow-[var(--card-shadow)] border border-border">
+        <h1 className="mb-2 text-5xl font-bold font-display text-card-foreground">404</h1>
+        <p className="text-xl font-medium text-card-foreground mb-2">Oops! Page not found</p>
+        <p className="text-sm text-muted-foreground mb-6">
+          The page you are looking for doesn't exist or has been moved.
+        </p>
+        <Link
+          to="/"
+          className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-md font-medium text-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <Home className="w-4 h-4" aria-hidden="true" />
           Return to Home
-        </a>
+        </Link>
       </div>
-    </div>
+    </main>
   );
 };
 

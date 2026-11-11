@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { X, Loader2 } from "lucide-react";
 import { z } from "zod";
@@ -26,6 +26,15 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
   const [form, setForm] = useState({ name: "", mobile: "", address: "", city: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!product) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [product, onClose]);
 
   if (!product) return null;
 
@@ -94,6 +103,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
             <input
               id="order-name"
               type="text"
+              maxLength={100}
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Apna poora naam likhein"
@@ -111,6 +121,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
             <input
               id="order-mobile"
               type="tel"
+              maxLength={11}
               value={form.mobile}
               onChange={(e) => setForm({ ...form, mobile: e.target.value })}
               placeholder="03XXXXXXXXX"
@@ -150,6 +161,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
               placeholder="Ghar ka number, gali, mohalla, area"
+              maxLength={300}
               rows={3}
               aria-invalid={!!errors.address}
               aria-describedby={errors.address ? "address-error" : undefined}

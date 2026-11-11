@@ -1,94 +1,64 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import OrderForm from "../components/OrderForm";
 
-describe("OrderForm Security", () => {
-  const dummyProduct = {
-    name: "Test Mouse & Keyboard",
-    price: 1500,
-    image: "test.jpg",
-  };
+const product = { name: "Test Mouse & Keyboard", price: 1500, image: "test.jpg" };
 
+describe("OrderForm", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.stubGlobal("open", vi.fn());
   });
-
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
-  it("safely encodes special characters in user inputs when generating WhatsApp URL", async () => {
-    const handleClose = vi.fn();
-    render(<OrderForm product={dummyProduct} onClose={handleClose} />);
-
-    const nameInput = screen.getByPlaceholderText("Apna poora naam likhein");
-    const mobileInput = screen.getByPlaceholderText("03XXXXXXXXX");
-    const citySelect = screen.getByRole("combobox");
-    const addressInput = screen.getByPlaceholderText("Ghar ka number, gali, mohalla, area");
-    const submitBtn = screen.getByRole("button", { name: "Order Confirm Karein" });
-
-    fireEvent.change(nameInput, { target: { value: "Ali & Hassan #1" } });
-    fireEvent.change(mobileInput, { target: { value: "03001234567" } });
-    fireEvent.change(citySelect, { target: { value: "Lahore" } });
-    fireEvent.change(addressInput, { target: { value: "House # 45 & Street 12, Block-C" } });
-
-    fireEvent.click(submitBtn);
-
-    // Fast-forward timer for submit setTimeout
-    act(() => {
-      vi.advanceTimersByTime(1500);
-    });
-
-    expect(window.open).toHaveBeenCalledTimes(1);
-    const [openedUrl, target, features] = (window.open as ReturnType<typeof vi.fn>).mock.calls[0];
-
-    expect(target).toBe("_blank");
-    expect(features).toBe("noopener,noreferrer");
-
-    // Extract text query param
-    const urlObj = new URL(openedUrl);
-    const textParam = urlObj.searchParams.get("text");
-
-    expect(textParam).toContain("Ali & Hassan #1");
-    expect(textParam).toContain("House # 45 & Street 12, Block-C");
-    expect(openedUrl).not.toContain("Ali & Hassan #1"); // Raw unencoded string shouldn't be in raw URL query
-    expect(openedUrl).toContain(encodeURIComponent("Ali & Hassan #1"));
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import OrderForm from "@/components/OrderForm";
-
-describe("OrderForm component", () => {
-  const mockProduct = {
-    name: "Gaming Mouse RGB",
-    price: 2500,
-    image: "test-image.jpg",
-  };
-
-  it("renders dialog with correct accessible attributes and labels", () => {
-    const handleClose = vi.fn();
-    render(<OrderForm product={mockProduct} onClose={handleClose} />);
-
-    // Check dialog role and title association
-    const dialog = screen.getByRole("dialog");
-    expect(dialog).toBeInTheDocument();
-    expect(dialog).toHaveAttribute("aria-modal", "true");
-    expect(dialog).toHaveAttribute("aria-labelledby", "order-form-title");
-
-    // Check accessible close button
-    const closeBtn = screen.getByRole("button", { name: "Order form band karein" });
-    expect(closeBtn).toBeInTheDocument();
-
-    // Check input field accessibility via associated labels
-    expect(screen.getByLabelText(/naam/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/mobile number/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/city/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/mukammal address/i)).toBeInTheDocument();
+  it("renders an accessible dialog with associated form labels", () => {
+    render(<OrderForm product={product} onClose={vi.fn()} />);
+    expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true");
+    expect(screen.getByRole("dialog")).toHaveAttribute("aria-labelledby", "order-form-title");
+    expect(screen.getByRole("button", { name: /order form band karein/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/naam/i)).toHaveAttribute("id", "order-name");
+    expect(screen.getByLabelText(/mobile number/i)).toHaveAttribute("id", "order-mobile");
+    expect(screen.getByLabelText(/city/i)).toHaveAttribute("id", "order-city");
+    expect(screen.getByLabelText(/mukammal address/i)).toHaveAttribute("id", "order-address");
   });
 
-  it("returns null when product is null", () => {
-    const { container } = render(<OrderForm product={null} onClose={() => {}} />);
+  it("limits field lengths in the browser", () => {
+    render(<OrderForm product={product} onClose={vi.fn()} />);
+    expect(screen.getByLabelText(/naam/i)).toHaveAttribute("maxLength", "100");
+    expect(screen.getByLabelText(/mobile number/i)).toHaveAttribute("maxLength", "11");
+    expect(screen.getByLabelText(/mukammal address/i)).toHaveAttribute("maxLength", "300");
+  });
+
+  it("closes when Escape is pressed", () => {
+    const onClose = vi.fn();
+    render(<OrderForm product={product} onClose={onClose} />);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("encodes user input and opens WhatsApp with safe window features", () => {
+    render(<OrderForm product={product} onClose={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText("Apna poora naam likhein"), { target: { value: "Ali & Hassan #1" } });
+    fireEvent.change(screen.getByPlaceholderText("03XXXXXXXXX"), { target: { value: "03001234567" } });
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "Lahore" } });
+    fireEvent.change(screen.getByPlaceholderText("Ghar ka number, gali, mohalla, area"), { target: { value: "House # 45 & Street 12, Block-C" } });
+    fireEvent.click(screen.getByRole("button", { name: "Order Confirm Karein" }));
+    act(() => { vi.advanceTimersByTime(1500); });
+    expect(window.open).toHaveBeenCalledTimes(1);
+    const [openedUrl, target, features] = (window.open as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(target).toBe("_blank");
+    expect(features).toBe("noopener,noreferrer");
+    const text = new URL(openedUrl).searchParams.get("text");
+    expect(text).toContain("Ali & Hassan #1");
+    expect(text).toContain("House # 45 & Street 12, Block-C");
+    expect(openedUrl).not.toContain("Ali & Hassan #1");
+  });
+
+  it("renders nothing when there is no product", () => {
+    const { container } = render(<OrderForm product={null} onClose={vi.fn()} />);
     expect(container).toBeEmptyDOMElement();
   });
 });
