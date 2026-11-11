@@ -45,9 +45,11 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
     setTimeout(() => {
       setSubmitting(false);
       
-      // WhatsApp message
-      const msg = `🛒 *New ZapCart Order*%0A%0A📦 Product: ${product.name}%0A💰 Price: Rs. ${product.price.toLocaleString()}%0A%0A👤 Name: ${result.data.name}%0A📱 Mobile: ${result.data.mobile}%0A🏙️ City: ${result.data.city}%0A📍 Address: ${result.data.address}`;
-      window.open(`https://wa.me/923701930960?text=${msg}`, "_blank");
+      // Security: Safely construct and encode user input in WhatsApp URL parameter to prevent URL injection
+      // and pass noopener,noreferrer to protect against reverse tabnabbing.
+      const rawMsg = `🛒 *New ZapCart Order*\n\n📦 Product: ${product.name}\n💰 Price: Rs. ${product.price.toLocaleString()}\n\n👤 Name: ${result.data.name}\n📱 Mobile: ${result.data.mobile}\n🏙️ City: ${result.data.city}\n📍 Address: ${result.data.address}`;
+      const encodedMsg = encodeURIComponent(rawMsg);
+      window.open(`https://wa.me/923701930960?text=${encodedMsg}`, "_blank", "noopener,noreferrer");
       
       toast.success("Order successfully place ho gaya! WhatsApp pe confirm karein.");
       onClose();
