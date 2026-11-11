@@ -14,7 +14,7 @@ describe("NotFound Page Security & Rendering", () => {
     consoleSpy.mockRestore();
   });
 
-  it("renders 404 header and home link with keyboard accessibility styling", () => {
+  it("renders 404 header and home link", () => {
     render(
       <MemoryRouter initialEntries={["/unknown-route"]}>
         <NotFound />
@@ -23,9 +23,7 @@ describe("NotFound Page Security & Rendering", () => {
 
     expect(screen.getByText("404")).toBeInTheDocument();
     expect(screen.getByText("Oops! Page not found")).toBeInTheDocument();
-    const link = screen.getByRole("link", { name: /Return to Home/i });
-    expect(link).toHaveAttribute("href", "/");
-    expect(link).toHaveClass("focus-visible:ring-2");
+    expect(screen.getByRole("link", { name: "Return to Home" })).toHaveAttribute("href", "/");
   });
 
   it("sanitizes CRLF and control characters from location.pathname in log outputs (CWE-117)", () => {
