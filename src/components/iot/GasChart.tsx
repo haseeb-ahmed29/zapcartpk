@@ -1,22 +1,19 @@
-import { memo } from "react";
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, ReferenceLine, Tooltip } from "recharts";
 import type { GasReading } from "@/hooks/useGasSimulation";
 
-function GasChart({ data, threshold }: { data: GasReading[]; threshold: number }) {
-  // Performance optimization: Pass `data` (GasReading[]) directly to LineChart
-  // without intermediate array mapping/transformations, avoiding 40 object allocations
-  // on every 500ms simulation tick.
+export default function GasChart({ data, threshold }: { data: GasReading[]; threshold: number }) {
+  const formatted = data.map((d, i) => ({ idx: i, value: d.value }));
   return (
     <div className="h-44 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+        <LineChart data={formatted} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="hsl(var(--iot-accent))" />
               <stop offset="100%" stopColor="hsl(var(--iot-violet))" />
             </linearGradient>
           </defs>
-          <XAxis dataKey="t" hide />
+          <XAxis dataKey="idx" hide />
           <YAxis domain={[0, 100]} tick={{ fill: "hsla(210,40%,96%,0.4)", fontSize: 10 }} axisLine={false} tickLine={false} />
           <Tooltip
             contentStyle={{ background: "hsla(220,30%,10%,0.9)", border: "1px solid hsla(190,90%,60%,0.3)", borderRadius: 8, color: "white" }}
@@ -37,5 +34,3 @@ function GasChart({ data, threshold }: { data: GasReading[]; threshold: number }
     </div>
   );
 }
-
-export default memo(GasChart);
