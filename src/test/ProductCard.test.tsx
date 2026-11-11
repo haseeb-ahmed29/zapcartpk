@@ -56,6 +56,22 @@ describe("ProductCard", () => {
     expect(screen.queryByText(/% OFF/)).not.toBeInTheDocument();
   });
 
+  it("is memoized and does not re-render when re-rendered with identical props", () => {
+    const onBuy = vi.fn();
+    const props = { ...defaultProps, onBuy };
+    const { rerender } = render(<ProductCard {...props} />);
+
+    const buttonInitial = screen.getByRole("button", {
+      name: "Buy Now: Gaming Mouse RGB for Rs. 2,500",
+    });
+
+    rerender(<ProductCard {...props} />);
+
+    const buttonAfterRerender = screen.getByRole("button", {
+      name: "Buy Now: Gaming Mouse RGB for Rs. 2,500",
+    });
+
+    expect(buttonInitial).toBe(buttonAfterRerender);
   it("skips unnecessary re-renders when parent state updates if props remain unchanged", () => {
     let renderCount = 0;
 
