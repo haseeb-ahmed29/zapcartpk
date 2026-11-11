@@ -1,41 +1,33 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import NotFound from "@/pages/NotFound";
 
-describe("NotFound Page Security & Rendering", () => {
+describe("NotFound page", () => {
   let consoleSpy: ReturnType<typeof vi.spyOn>;
+  beforeEach(() => { consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {}); });
+  afterEach(() => { consoleSpy.mockRestore(); });
 
-  beforeEach(() => {
-    consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleSpy.mockRestore();
-  });
-
-  it("renders 404 header and home link", () => {
-    render(
-      <MemoryRouter initialEntries={["/unknown-route"]}>
-        <NotFound />
-      </MemoryRouter>
-    );
-
-    expect(screen.getByText("404")).toBeInTheDocument();
+  it("renders 404 guidance inside a main landmark", () => {
+    render(<MemoryRouter initialEntries={["/unknown-route"]}><NotFound /></MemoryRouter>);
+    expect(screen.getByRole("main")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "404" })).toBeInTheDocument();
     expect(screen.getByText("Oops! Page not found")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Return to Home" })).toHaveAttribute("href", "/");
+    expect(screen.getByText("The page you are looking for doesn't exist or has been moved.")).toBeInTheDocument();
   });
 
-  it("sanitizes CRLF and control characters from location.pathname in log outputs (CWE-117)", () => {
-    render(
-      <MemoryRouter initialEntries={["/test-path\r\n[FAKE_LOG_ENTRY]\x07"]}>
-        <NotFound />
-      </MemoryRouter>
-    );
+  it("renders an accessible Return to Home link", () => {
+    render(<MemoryRouter><NotFound /></MemoryRouter>);
+    const homeLink = screen.getByRole("link", { name: /Return to Home/i });
+    expect(homeLink).toHaveAttribute("href", "/");
+    expect(homeLink).toHaveClass("focus-visible:ring-2");
+  });
 
+  it("sanitizes CRLF and control characters in pathname log output", () => {
+    render(<MemoryRouter initialEntries={["/test-path\r\n[FAKE_LOG_ENTRY]\x07"]}><NotFound /></MemoryRouter>);
     expect(consoleSpy).toHaveBeenCalledWith(
       "404 Error: User attempted to access non-existent route:",
-      "/test-path[FAKE_LOG_ENTRY]"
+      "/test-path[FAKE_LOG_ENTRY]",
     );
   });
 });
