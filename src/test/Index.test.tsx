@@ -11,6 +11,7 @@ import { describe, it, expect } from "vitest";
 import Index from "@/pages/Index";
 
 describe("Index Page Accessibility & Navigation", () => {
+  it("renders a skip-to-content accessibility link pointing to main content", () => {
   it("renders skip to main content link targeting the main content container", () => {
     render(
       <MemoryRouter>
@@ -25,6 +26,7 @@ describe("Index Page Accessibility & Navigation", () => {
     expect(skipLink).toHaveClass("focus:not-sr-only");
   });
 
+  it("renders main landmark with id='main-content' and tabIndex='-1'", () => {
   it("renders semantic main landmark with id='main-content'", () => {
     render(
       <MemoryRouter>
@@ -38,6 +40,7 @@ describe("Index Page Accessibility & Navigation", () => {
     expect(mainLandmark).toHaveAttribute("tabindex", "-1");
   });
 
+  it("renders navbar with accessible role and labeled sections", () => {
   it("renders navbar IoT Demo link with keyboard focus indicator classes", () => {
     render(
       <MemoryRouter>
@@ -45,6 +48,15 @@ describe("Index Page Accessibility & Navigation", () => {
       </MemoryRouter>
     );
 
+    const nav = screen.getByRole("navigation", { name: "Main Navigation" });
+    expect(nav).toBeInTheDocument();
+
+    const iotLink = screen.getByRole("link", { name: "IoT Demo" });
+    expect(iotLink).toBeInTheDocument();
+    expect(iotLink).toHaveAttribute("href", "/iot-demo");
+
+    const productsSection = screen.getByRole("region", { name: "Hamari Products" });
+    expect(productsSection).toBeInTheDocument();
     const iotDemoLink = screen.getByRole("link", { name: /IoT Demo/i });
     expect(iotDemoLink).toBeInTheDocument();
     expect(iotDemoLink).toHaveAttribute("href", "/iot-demo");
