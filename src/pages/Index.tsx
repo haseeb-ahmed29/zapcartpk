@@ -88,57 +88,25 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Skip to Content for Keyboard & Screen Reader Accessibility */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-medium text-sm transition"
-      {/* Skip to Content Link (WCAG 2.4.1 Bypass Blocks) */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-      {/* Skip to Main Content Link for Keyboard Accessibility (WCAG 2.4.1) */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
-      >
-        Skip to main content
-      </a>
-
       {/* Navbar */}
-      <nav aria-label="Main Navigation" className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b border-border">
+      <nav className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Zap className="w-7 h-7 text-primary" aria-hidden="true" />
+            <Zap className="w-7 h-7 text-primary" />
             <span className="font-display font-bold text-xl text-foreground">ZapCart</span>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground hidden sm:block">🇵🇰 Pakistan's Computer Accessories Store</span>
             <Link
               to="/iot-demo"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 text-white hover:opacity-90 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 text-white hover:opacity-90 transition"
             >
-              <Cpu className="w-3.5 h-3.5" aria-hidden="true" /> IoT Demo
+              <Cpu className="w-3.5 h-3.5" /> IoT Demo
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Main Content Landmark */}
-      <main id="main-content" tabIndex={-1} className="focus:outline-none">
-        {/* Hero */}
-        <section className="relative h-[50vh] min-h-[360px] flex items-center justify-center overflow-hidden">
-          <img src={heroBg} alt="Computer accessories collection showcase" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0" style={{ background: "var(--hero-overlay)" }} />
-          <div className="relative z-10 text-center px-4">
-            <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-primary-foreground mb-4 drop-shadow-lg">
-              ⚡ ZapCart
-            </h1>
-            <p className="text-primary-foreground/90 text-lg sm:text-xl max-w-xl mx-auto font-body">
-              Premium Computer Accessories — Cash on Delivery across Pakistan
-            </p>
-          </div>
-        </section>
-      <main id="main-content" tabIndex={-1} className="outline-none">
       {/* Hero */}
       <section className="relative h-[50vh] min-h-[360px] flex items-center justify-center overflow-hidden">
         <img src={heroBg} alt="Computer accessories" className="absolute inset-0 w-full h-full object-cover" />
@@ -153,37 +121,18 @@ const Index = () => {
         </div>
       </section>
 
-        {/* Features bar */}
-        <section aria-label="Store Highlights" className="bg-primary">
-          <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-            {features.map((f, i) => (
-              <div key={i} className="flex items-center gap-2 text-primary-foreground text-sm font-medium">
-                <f.icon className="w-4 h-4" aria-hidden="true" />
-                <span>{f.text}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+      {/* Features bar */}
+      <section className="bg-primary">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+          {features.map((f, i) => (
+            <div key={i} className="flex items-center gap-2 text-primary-foreground text-sm font-medium">
+              <f.icon className="w-4 h-4" />
+              <span>{f.text}</span>
+            </div>
+          ))}
+        </div>
+      </section>
 
-        {/* Products */}
-        <section aria-labelledby="products-heading" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <h2 id="products-heading" className="font-display font-bold text-2xl sm:text-3xl text-foreground text-center mb-10">
-            Hamari Products
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                name={product.name}
-                price={product.price}
-                oldPrice={product.oldPrice}
-                description={product.description}
-                image={product.image}
-                onBuy={() => setSelectedProduct(product)}
-              />
-            ))}
-          </div>
-        </section>
       {/* Products */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground text-center mb-10">
@@ -203,7 +152,6 @@ const Index = () => {
           ))}
         </div>
       </section>
-      </main>
 
       {/* Footer */}
       <footer className="bg-card border-t border-border">

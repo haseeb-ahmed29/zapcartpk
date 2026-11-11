@@ -1,21 +1,17 @@
 import { memo } from "react";
 
-// Performance optimization: Hoist static circuit path definitions outside the component scope
-// to prevent re-allocating the 4-element array and path string references on every render cycle.
-const CIRCUIT_CONNECTION_PATHS = [
-  "M80,60 L200,60 L200,140",
-  "M200,140 L320,140",
-  "M200,140 L200,220 L120,220",
-  "M200,140 L200,220 L280,220",
-] as const;
-
 // Stylized circuit layout with animated dashed connection lines
 function CircuitPreview({ alarming }: { alarming: boolean }) {
   const stroke = alarming ? "hsl(var(--iot-danger))" : "hsl(var(--iot-accent))";
   return (
     <div className="relative w-full h-72 grid-bg rounded-xl overflow-hidden p-4">
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 280" preserveAspectRatio="none">
-        {CIRCUIT_CONNECTION_PATHS.map((d, i) => (
+        {[
+          "M80,60 L200,60 L200,140",
+          "M200,140 L320,140",
+          "M200,140 L200,220 L120,220",
+          "M200,140 L200,220 L280,220",
+        ].map((d, i) => (
           <path
             key={i}
             d={d}
