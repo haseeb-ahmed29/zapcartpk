@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { Cpu, Wind, Volume2, Lightbulb, Wifi } from "lucide-react";
 
 const items = [
@@ -9,7 +8,7 @@ const items = [
   { icon: Wifi, name: "Wi-Fi Module", desc: "Cloud uplink", color: "var(--iot-violet)" },
 ];
 
-function ComponentsGrid({ alarming }: { alarming: boolean }) {
+export default function ComponentsGrid({ alarming }: { alarming: boolean }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       {items.map((it, i) => (
@@ -34,5 +33,3 @@ function ComponentsGrid({ alarming }: { alarming: boolean }) {
     </div>
   );
 }
-
-export default memo(ComponentsGrid);
