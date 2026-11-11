@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Zap, Truck, ShieldCheck, Phone, Cpu } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
@@ -70,36 +70,12 @@ const features = [
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
 
-  // Performance optimization: Stable callback for closing the modal
-  const handleCloseModal = useCallback(() => {
-    setSelectedProduct(null);
-  }, []);
-
-  // Performance optimization: Memoize onBuy callbacks keyed by product id to ensure
-  // stable function references. This prevents all 6 ProductCard instances from re-rendering
-  // whenever `selectedProduct` opens, closes, or updates modal state.
-  const buyHandlers = useMemo(() => {
-    const handlers: Record<number, () => void> = {};
-    products.forEach((product) => {
-      handlers[product.id] = () => setSelectedProduct(product);
-    });
-    return handlers;
-  }, []);
-
   return (
     <div className="min-h-screen bg-background">
       {/* Skip to Content for Keyboard & Screen Reader Accessibility */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-medium text-sm transition"
-      {/* Skip to Content Link (WCAG 2.4.1 Bypass Blocks) */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-      {/* Skip to Main Content Link for Keyboard Accessibility (WCAG 2.4.1) */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
       >
         Skip to main content
       </a>
@@ -138,20 +114,6 @@ const Index = () => {
             </p>
           </div>
         </section>
-      <main id="main-content" tabIndex={-1} className="outline-none">
-      {/* Hero */}
-      <section className="relative h-[50vh] min-h-[360px] flex items-center justify-center overflow-hidden">
-        <img src={heroBg} alt="Computer accessories" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0" style={{ background: "var(--hero-overlay)" }} />
-        <div className="relative z-10 text-center px-4">
-          <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-primary-foreground mb-4 drop-shadow-lg">
-            ⚡ ZapCart
-          </h1>
-          <p className="text-primary-foreground/90 text-lg sm:text-xl max-w-xl mx-auto font-body">
-            Premium Computer Accessories — Cash on Delivery across Pakistan
-          </p>
-        </div>
-      </section>
 
         {/* Features bar */}
         <section aria-label="Store Highlights" className="bg-primary">
@@ -184,25 +146,6 @@ const Index = () => {
             ))}
           </div>
         </section>
-      {/* Products */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground text-center mb-10">
-          Hamari Products
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              name={product.name}
-              price={product.price}
-              oldPrice={product.oldPrice}
-              description={product.description}
-              image={product.image}
-              onBuy={buyHandlers[product.id]}
-            />
-          ))}
-        </div>
-      </section>
       </main>
 
       {/* Footer */}
@@ -220,7 +163,7 @@ const Index = () => {
       </footer>
 
       {/* Order Form Modal */}
-      <OrderForm product={selectedProduct} onClose={handleCloseModal} />
+      <OrderForm product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </div>
   );
 };
