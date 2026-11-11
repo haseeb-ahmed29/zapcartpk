@@ -113,21 +113,26 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
             <label htmlFor="order-name" className="block text-sm font-medium text-card-foreground mb-1">
-              Naam *
+              Naam <span className="text-destructive" aria-hidden="true">*</span>
             </label>
             <input
               id="order-name"
               type="text"
               autoFocus
+              autoComplete="name"
+              required
+              aria-required="true"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Apna poora naam likhein"
+              /* Security: enforce maximum input length at the HTML DOM level to prevent payload exhaustion / client DoS */
+              maxLength={100}
               aria-invalid={!!errors.name}
               aria-describedby={errors.name ? "name-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
             />
             {errors.name && (
-              <p id="name-error" className="text-destructive text-xs mt-1">
+              <p id="name-error" role="alert" className="text-destructive text-xs mt-1">
                 {errors.name}
               </p>
             )}
@@ -135,20 +140,28 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
 
           <div>
             <label htmlFor="order-mobile" className="block text-sm font-medium text-card-foreground mb-1">
-              Mobile Number *
+              Mobile Number <span className="text-destructive" aria-hidden="true">*</span>
             </label>
             <input
               id="order-mobile"
               type="tel"
+              autoComplete="tel"
+              required
+              aria-required="true"
               value={form.mobile}
               onChange={(e) => setForm({ ...form, mobile: e.target.value })}
               placeholder="03XXXXXXXXX"
+              /* Security: 11-digit Pakistani mobile number limit prevents oversized tel payload input */
+              maxLength={11}
               aria-invalid={!!errors.mobile}
-              aria-describedby={errors.mobile ? "mobile-error" : undefined}
+              aria-describedby={errors.mobile ? "mobile-hint mobile-error" : "mobile-hint"}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
             />
+            <p id="mobile-hint" className="text-muted-foreground text-xs mt-1">
+              Format: 03001234567 (11 digits)
+            </p>
             {errors.mobile && (
-              <p id="mobile-error" className="text-destructive text-xs mt-1">
+              <p id="mobile-error" role="alert" className="text-destructive text-xs mt-1">
                 {errors.mobile}
               </p>
             )}
@@ -156,10 +169,13 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
 
           <div>
             <label htmlFor="order-city" className="block text-sm font-medium text-card-foreground mb-1">
-              City *
+              City <span className="text-destructive" aria-hidden="true">*</span>
             </label>
             <select
               id="order-city"
+              autoComplete="address-level2"
+              required
+              aria-required="true"
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
               aria-invalid={!!errors.city}
@@ -172,7 +188,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
               ))}
             </select>
             {errors.city && (
-              <p id="city-error" className="text-destructive text-xs mt-1">
+              <p id="city-error" role="alert" className="text-destructive text-xs mt-1">
                 {errors.city}
               </p>
             )}
@@ -180,20 +196,25 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
 
           <div>
             <label htmlFor="order-address" className="block text-sm font-medium text-card-foreground mb-1">
-              Mukammal Address *
+              Mukammal Address <span className="text-destructive" aria-hidden="true">*</span>
             </label>
             <textarea
               id="order-address"
+              autoComplete="street-address"
+              required
+              aria-required="true"
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
               placeholder="Ghar ka number, gali, mohalla, area"
               rows={3}
+              /* Security: restrict address length to schema bound of 300 chars to avoid memory/URL bloat */
+              maxLength={300}
               aria-invalid={!!errors.address}
               aria-describedby={errors.address ? "address-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition resize-none"
             />
             {errors.address && (
-              <p id="address-error" className="text-destructive text-xs mt-1">
+              <p id="address-error" role="alert" className="text-destructive text-xs mt-1">
                 {errors.address}
               </p>
             )}
@@ -202,6 +223,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
           <button
             type="submit"
             disabled={submitting}
+            aria-busy={submitting}
             className="w-full bg-primary text-primary-foreground py-3 rounded-md font-display font-semibold text-base hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {submitting ? (
