@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { X, Loader2 } from "lucide-react";
 import { z } from "zod";
@@ -14,7 +14,10 @@ const orderSchema = z.object({
   name: z.string().trim().min(2, "Naam kam az kam 2 characters ka hona chahiye").max(100),
   mobile: z.string().trim().regex(/^03\d{9}$/, "Valid Pakistani mobile number darj karein (03XXXXXXXXX)"),
   address: z.string().trim().min(10, "Mukammal address darj karein").max(300),
-  city: z.string().min(1, "City select karein"),
+  city: z
+    .string()
+    .min(1, "City select karein")
+    .refine((val) => pakistanCities.includes(val), "Mo'atabar city select karein"),
 });
 
 interface OrderFormProps {
@@ -26,6 +29,18 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
   const [form, setForm] = useState({ name: "", mobile: "", address: "", city: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  // Close dialog when user presses the Escape key
+  useEffect(() => {
+    if (!product) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [product, onClose]);
 
   if (!product) return null;
 
@@ -45,9 +60,14 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
     setTimeout(() => {
       setSubmitting(false);
       
-      // WhatsApp message
-      const msg = `🛒 *New ZapCart Order*%0A%0A📦 Product: ${product.name}%0A💰 Price: Rs. ${product.price.toLocaleString()}%0A%0A👤 Name: ${result.data.name}%0A📱 Mobile: ${result.data.mobile}%0A🏙️ City: ${result.data.city}%0A📍 Address: ${result.data.address}`;
-      window.open(`https://wa.me/923701930960?text=${msg}`, "_blank");
+      // WhatsApp message - safely encode message parameters to prevent URL parameter injection
+      const msg = `🛒 *New ZapCart Order*\n\n📦 Product: ${product.name}\n💰 Price: Rs. ${product.price.toLocaleString()}\n\n👤 Name: ${result.data.name}\n📱 Mobile: ${result.data.mobile}\n🏙️ City: ${result.data.city}\n📍 Address: ${result.data.address}`;
+      const encodedMsg = encodeURIComponent(msg);
+      // Security: nullify opener to prevent reverse tabnabbing vulnerabilities
+      const win = window.open(`https://wa.me/923701930960?text=${encodedMsg}`, "_blank", "noopener,noreferrer");
+      if (win) {
+        win.opener = null;
+      }
       
       toast.success("Order successfully place ho gaya! WhatsApp pe confirm karein.");
       onClose();
@@ -73,6 +93,25 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
             className="text-muted-foreground hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <X className="w-5 h-5" />
+      aria-labelledby="order-dialog-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className="bg-card rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <h2 id="order-dialog-title" className="font-display font-bold text-xl text-card-foreground">
+            Order Place Karein
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close order form"
+            className="text-muted-foreground hover:text-foreground transition-colors rounded-md p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -88,27 +127,43 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
           <div>
             <label htmlFor="order-name" className="block text-sm font-medium text-card-foreground mb-1">
               Naam <span className="text-destructive">*</span>
+              Naam <span className="text-destructive" aria-hidden="true">*</span>
             </label>
             <input
               id="order-name"
               type="text"
+              autoFocus
+              autoComplete="name"
+              required
+              aria-required="true"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Apna poora naam likhein"
+              /* Security: enforce maximum input length at the HTML DOM level to prevent payload exhaustion / client DoS */
+              maxLength={100}
               aria-invalid={!!errors.name}
               aria-describedby={errors.name ? "name-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
             />
             {errors.name && <p id="name-error" className="text-destructive text-xs mt-1">{errors.name}</p>}
+            {errors.name && (
+              <p id="name-error" role="alert" className="text-destructive text-xs mt-1">
+                {errors.name}
+              </p>
+            )}
           </div>
 
           <div>
             <label htmlFor="order-mobile" className="block text-sm font-medium text-card-foreground mb-1">
               Mobile Number <span className="text-destructive">*</span>
+              Mobile Number <span className="text-destructive" aria-hidden="true">*</span>
             </label>
             <input
               id="order-mobile"
               type="tel"
+              autoComplete="tel"
+              required
+              aria-required="true"
               value={form.mobile}
               onChange={(e) => setForm({ ...form, mobile: e.target.value })}
               placeholder="03XXXXXXXXX"
@@ -117,6 +172,20 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
             />
             {errors.mobile && <p id="mobile-error" className="text-destructive text-xs mt-1">{errors.mobile}</p>}
+              /* Security: 11-digit Pakistani mobile number limit prevents oversized tel payload input */
+              maxLength={11}
+              aria-invalid={!!errors.mobile}
+              aria-describedby={errors.mobile ? "mobile-hint mobile-error" : "mobile-hint"}
+              className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
+            />
+            <p id="mobile-hint" className="text-muted-foreground text-xs mt-1">
+              Format: 03001234567 (11 digits)
+            </p>
+            {errors.mobile && (
+              <p id="mobile-error" role="alert" className="text-destructive text-xs mt-1">
+                {errors.mobile}
+              </p>
+            )}
           </div>
 
           <div>
@@ -125,6 +194,13 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
             </label>
             <select
               id="order-city"
+              City <span className="text-destructive" aria-hidden="true">*</span>
+            </label>
+            <select
+              id="order-city"
+              autoComplete="address-level2"
+              required
+              aria-required="true"
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
               aria-invalid={!!errors.city}
@@ -137,6 +213,11 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
               ))}
             </select>
             {errors.city && <p id="city-error" className="text-destructive text-xs mt-1">{errors.city}</p>}
+            {errors.city && (
+              <p id="city-error" role="alert" className="text-destructive text-xs mt-1">
+                {errors.city}
+              </p>
+            )}
           </div>
 
           <div>
@@ -145,15 +226,29 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
             </label>
             <textarea
               id="order-address"
+              Mukammal Address <span className="text-destructive" aria-hidden="true">*</span>
+            </label>
+            <textarea
+              id="order-address"
+              autoComplete="street-address"
+              required
+              aria-required="true"
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
               placeholder="Ghar ka number, gali, mohalla, area"
               rows={3}
+              /* Security: restrict address length to schema bound of 300 chars to avoid memory/URL bloat */
+              maxLength={300}
               aria-invalid={!!errors.address}
               aria-describedby={errors.address ? "address-error" : undefined}
               className="w-full px-4 py-2.5 rounded-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition resize-none"
             />
             {errors.address && <p id="address-error" className="text-destructive text-xs mt-1">{errors.address}</p>}
+            {errors.address && (
+              <p id="address-error" role="alert" className="text-destructive text-xs mt-1">
+                {errors.address}
+              </p>
+            )}
           </div>
 
           <button
@@ -165,6 +260,7 @@ const OrderForm = ({ product, onClose }: OrderFormProps) => {
             {submitting ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                 <span>Order place ho raha hai...</span>
               </>
             ) : (
