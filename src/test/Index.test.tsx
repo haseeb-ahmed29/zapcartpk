@@ -5,6 +5,13 @@ import Index from "@/pages/Index";
 
 describe("Index Page Accessibility & Navigation", () => {
   it("renders an accessible skip-to-content link targeting the main content landmark", () => {
+import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import { describe, it, expect } from "vitest";
+import Index from "@/pages/Index";
+
+describe("Index Page Accessibility & Navigation", () => {
+  it("renders skip to main content link targeting the main content container", () => {
     render(
       <MemoryRouter>
         <Index />
@@ -42,5 +49,10 @@ describe("Index Page Accessibility & Navigation", () => {
     expect(iotDemoLink).toBeInTheDocument();
     expect(iotDemoLink).toHaveAttribute("href", "/iot-demo");
     expect(iotDemoLink).toHaveClass("focus-visible:ring-2");
+
+    const mainContent = document.getElementById("main-content");
+    expect(mainContent).not.toBeNull();
+    expect(mainContent?.tagName.toLowerCase()).toBe("main");
+    expect(mainContent).toHaveAttribute("tabindex", "-1");
   });
 });
