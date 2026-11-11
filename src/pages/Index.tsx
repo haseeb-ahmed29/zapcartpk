@@ -88,18 +88,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Skip to Content Link (WCAG 2.4.1 Bypass Blocks) */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-      {/* Skip to Main Content Link for Keyboard Accessibility (WCAG 2.4.1) */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
-      >
-        Skip to main content
-      </a>
-
       {/* Navbar */}
       <nav className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -111,7 +99,7 @@ const Index = () => {
             <span className="text-sm text-muted-foreground hidden sm:block">🇵🇰 Pakistan's Computer Accessories Store</span>
             <Link
               to="/iot-demo"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 text-white hover:opacity-90 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 text-white hover:opacity-90 transition"
             >
               <Cpu className="w-3.5 h-3.5" /> IoT Demo
             </Link>
@@ -119,9 +107,6 @@ const Index = () => {
         </div>
       </nav>
 
-      {/* Main Content Landmark */}
-      <main id="main-content" tabIndex={-1} className="focus:outline-none">
-      <main id="main-content" tabIndex={-1} className="outline-none">
       {/* Hero */}
       <section className="relative h-[50vh] min-h-[360px] flex items-center justify-center overflow-hidden">
         <img src={heroBg} alt="Computer accessories" className="absolute inset-0 w-full h-full object-cover" />
@@ -167,7 +152,6 @@ const Index = () => {
           ))}
         </div>
       </section>
-      </main>
 
       {/* Footer */}
       <footer className="bg-card border-t border-border">
