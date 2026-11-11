@@ -11,6 +11,9 @@ interface ProductCardProps {
   onBuy: () => void;
 }
 
+// Performance optimization: Memoize ProductCard to prevent unnecessary re-renders
+// of all product items when parent (Index) state changes (such as selecting/clearing products
+// for the order modal). When paired with a stable onBuy callback, re-renders on modal open/close
 // Performance optimization: Memoize ProductCard with React.memo to prevent unnecessary re-renders
 // of all product items when parent (Index) state changes (such as selecting/clearing products
 // for the order modal). When paired with stable onBuy callbacks, re-renders on modal open/close
