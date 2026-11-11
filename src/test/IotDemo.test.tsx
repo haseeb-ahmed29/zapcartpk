@@ -1,8 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, beforeEach } from "vitest";
+import CircuitPreview from "@/components/iot/CircuitPreview";
 import GasMeter from "@/components/iot/GasMeter";
 import IotDemo from "@/pages/IotDemo";
+
+describe("CircuitPreview Component", () => {
+  it("renders circuit preview with SVG path connections", () => {
+    const { container } = render(<CircuitPreview alarming={false} />);
+    const paths = container.querySelectorAll("svg path");
+    expect(paths.length).toBe(4);
+    expect(screen.getByText("MQ-2")).toBeInTheDocument();
+    expect(screen.getByText("NodeMCU")).toBeInTheDocument();
+  });
+});
 
 describe("GasMeter Accessibility", () => {
   it("renders with role='meter' and correct ARIA meter attributes", () => {
