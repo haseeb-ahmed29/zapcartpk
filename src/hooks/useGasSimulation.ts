@@ -25,6 +25,7 @@ const HISTORY_LEN = 40;
 export function useGasSimulation() {
   const [gasLevel, setGasLevel] = useState(8);
   const [phase, setPhase] = useState<Phase>("safe");
+
   const [paused, setPaused] = useState(false);
   const [shutdown, setShutdown] = useState(false);
   const [history, setHistory] = useState<GasReading[]>([]);
